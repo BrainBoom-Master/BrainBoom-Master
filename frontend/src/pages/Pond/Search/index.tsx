@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Card, Input, message, Space, Empty, Select } from "antd";
 import { Star } from "phosphor-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate , useLocation} from "react-router-dom";
 import HeaderComponent from "../../../components/header";
 import { GetCourses, SearchCourseByKeyword, GetCourseCategories, GetCourseByCategoryID, GetReviewById, GetCoursesByPriceDESC, GetCoursesByPriceASC} from "../../../services/https";
 import { CourseInterface } from "../../../interfaces/ICourse";
@@ -24,7 +24,9 @@ function SearchCourse() {
   }>({});
 
   const navigate = useNavigate();
+  const location = useLocation();
   const [categoryID, setCategoryID] = useState<number | undefined>();
+  const setCateID: number | undefined = location.state?.categoryID;
 
   const handleCourseClick = (course: CourseInterface) => {
     navigate(`/course/${course.ID}`, { state: { course } });
@@ -102,9 +104,30 @@ function SearchCourse() {
   
 
   useEffect(() => {
-    getCourses();
     GetCategory();
   }, []);
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      if (setCateID === undefined || setCateID === 0) {
+        await getCourses();
+      } else {
+        try {
+          const courses = await getCoursesByCategory(setCateID);
+          setCourses(courses);
+        } catch {
+          message.error("ไม่สามารถดึงข้อมูลคอร์สตามหมวดหมู่ได้");
+        }
+      }
+    };
+  
+    if (categoryID === undefined && setCateID) {
+      setCategoryID(setCateID);
+      fetchCourses();
+    }
+  }, [setCateID, categoryID]);
+  
+  
 
   useEffect(() => {
     if (categoryID === undefined) {
@@ -186,7 +209,7 @@ function SearchCourse() {
             }}
           >
             <Select
-              defaultValue={0}
+              defaultValue={setCateID || 0}
               placeholder="เลือกหมวดหมู่"
               onChange={handleCategoryChange}
               style={{ width: '20%', marginBottom: '10px' }}

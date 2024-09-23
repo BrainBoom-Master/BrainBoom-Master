@@ -122,7 +122,9 @@ function Create() {
 
       if (res) {
           messageApi.success('สร้างหลักสูตรสำเร็จ');
-          navigate('/tutor');
+          setTimeout(() => {
+            navigate('/tutor');
+          }, 2000);
       } else {
           messageApi.error(`Error: ${res.message}`);
       }

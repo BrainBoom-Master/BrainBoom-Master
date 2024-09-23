@@ -76,7 +76,7 @@ const AdminRoutes = (isLoggedIn: boolean): RouteObject => {
       },
       { // ปอน
         path: "tutor", 
-        element: isLoggedIn ? (userRoleId === 2  ? <TutorCourse /> : <MainPages />) : <MainPages />,
+        element: isLoggedIn ?  <TutorCourse /> : <MainPages />,
       },
       { // ปอน
         path: "search", 

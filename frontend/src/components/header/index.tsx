@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Layout, Avatar, ConfigProvider, MenuProps, Menu, message } from 'antd';
+import { Layout, Avatar, ConfigProvider, MenuProps, Menu, message, Modal } from 'antd';
 import { BookOutlined, UserOutlined, ShoppingCartOutlined, ShopOutlined, LogoutOutlined, SearchOutlined } from '@ant-design/icons';
 import Logo from '../../assets/Logo.png';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -7,37 +7,64 @@ import 'antd/dist/reset.css';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
-const items: MenuItem[] = [
-  {
-    label: <Link to="/">ซื้อคอร์ส</Link>, 
-    key: 'course',
-    icon: <ShoppingCartOutlined />,
-  },
-  {
-    label: <Link to="/tutor">ขายคอร์ส</Link>, 
-    key: 'tuterCourse',
-    icon: <ShopOutlined />,
-  },
-  {
-    label: <Link to="/myCourses">คอร์สของฉัน</Link>, 
-    key: 'myCourse',
-    icon: <BookOutlined />,
-  },
-  {
-    label: <Link to="/search">ค้นหา</Link>, 
-    key: 'search',
-    icon: <SearchOutlined />,
-  },
-];
-
 const { Header } = Layout;
 
 function HeaderComponent() {
   const username = localStorage.getItem('username') || 'Unknown User';
   const userID = localStorage.getItem('id') || 0;
+  
   const [current, setCurrent] = useState("course");
   const navigate = useNavigate();
   const location = useLocation();
+
+  const roleID = localStorage.getItem('user_role_id') || 0;
+
+  const handleTutorClick = () => {
+    if (roleID === '3') {
+      Modal.confirm({
+        title: 'โปรด login ไอดีติวเตอร์',
+        okText: 'ตกลง',
+        cancelText: 'ยกเลิก',
+        onOk: () => {
+          localStorage.clear();
+          setTimeout(() => {
+            navigate('/login');
+          }, 500);
+        },
+        onCancel: () => {
+        },
+      });
+    } else {
+      navigate("/tutor");
+    }
+  }
+
+  const items: MenuItem[] = [
+    {
+      label: <Link to="/">ซื้อคอร์ส</Link>, 
+      key: 'course',
+      icon: <ShoppingCartOutlined />,
+    },
+    {
+      label: (
+        <span onClick={handleTutorClick}>
+          ขายคอร์ส
+        </span>
+      ),
+      key: 'tutorCourse',
+      icon: <ShopOutlined />,
+    },
+    {
+      label: <Link to="/myCourses">คอร์สของฉัน</Link>, 
+      key: 'myCourse',
+      icon: <BookOutlined />,
+    },
+    {
+      label: <Link to="/search">ค้นหา</Link>, 
+      key: 'search',
+      icon: <SearchOutlined />,
+    },
+  ];
 
   const onClick: MenuProps['onClick'] = (e) => {
     setCurrent(e.key);

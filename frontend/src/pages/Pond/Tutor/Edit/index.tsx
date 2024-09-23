@@ -13,7 +13,6 @@ import { PlusOutlined } from '@ant-design/icons';
 function Edit() {
   const location = useLocation();
   const [categories, setCategories] = useState<CourseCategoryInterface[]>([]);
-  //const tutor = location.state?.tutor;
   const course = location.state?.course;
 
   const GetCategory = async () => {
@@ -117,7 +116,9 @@ function Edit() {
       const res = await UpdateCourse(course.ID ,payload);
       if (res) {
         messageApi.success('แก้ไขหลักสูตรสำเร็จ');
-        navigate('/tutor');
+        setTimeout(() => {
+          navigate('/tutor');
+        }, 2000);
       } else {
         messageApi.error(`Error: ${res.message}`);
       }

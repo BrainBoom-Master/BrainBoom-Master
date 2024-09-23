@@ -636,6 +636,40 @@ async function GetPaymentByIdUser(userID: number): Promise<PaymentsInterface[] |
   }
 }
 
+async function GetPaymentByIdCourse(courseID: number): Promise<PaymentsInterface[] | null | false> {
+  const requestOptions = {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  };
+
+  try {
+    const res = await fetch(`${apiUrl}/payments/courses/${courseID}`, requestOptions);
+
+    if (res.status === 200) {
+      const payments = await res.json();
+    
+      if (Array.isArray(payments)) {
+        return payments as PaymentsInterface[]; 
+      } else {
+        console.error("ข้อมูลการชำระเงินไม่ถูกต้อง");
+        return false;
+      }
+    } else if (res.status === 404) {
+      console.error("ไม่พบการชำระเงินสำหรับคอร์สที่ระบุ");
+      return null;
+    } else {
+      console.error("เกิดข้อผิดพลาด:", res.statusText);
+      return false;
+    }
+  } catch (error) {
+    console.error("เกิดข้อผิดพลาดในการเรียก API:", error);
+    return false;
+  }
+}
+
+
 async function GetPayments() {
   const requestOptions = {
     method: "GET",
@@ -738,6 +772,7 @@ export {
   GetTotalCourse,
   //Payment Mac
   GetPaymentByIdUser, // ตะวันใช้ get ข้อมูลลง mycourse
+  GetPaymentByIdCourse,
   GetPayments,
   GetPriceById,
   GetTitleById,

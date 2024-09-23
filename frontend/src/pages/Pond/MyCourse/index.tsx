@@ -29,7 +29,7 @@ const Review: React.FC = () => {
       if (!paymentsData || paymentsData.length === 0) return;
 
       for (const payment of paymentsData) {
-        const reviews = await GetReviewById(payment.CourseID);
+        const reviews = await GetReviewById(payment.CourseID || 0);
         const userReview = reviews.find((review) => review.UserID === uid);
         reviewStatus[payment.CourseID!] = !!userReview;
       }
