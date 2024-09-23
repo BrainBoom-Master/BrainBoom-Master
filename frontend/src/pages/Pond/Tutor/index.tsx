@@ -190,7 +190,6 @@ function Tutor() {
                           <Title level={4} style={{ color: '#333d51' }}>{course.Title}</Title>
                           <Text style={{ color: '#7d7d7d' }}>จำนวนผู้สมัคร: {/*{course.CountStd || 0}*/}</Text>
                           <Space>
-<<<<<<< HEAD
                             <Text>
                               {course.ID !== undefined &&
                                 reviews[course.ID]?.length > 0
@@ -201,9 +200,6 @@ function Tutor() {
                                     ].length.toLocaleString()})`
                                   : "Rating: 0 (0)"}
                               </Text>
-=======
-                            <Text>5.0{/*{course.Rating || 'N/A'}*/}</Text>
->>>>>>> 1dc40d610700d55a503f92b6ac7ccee1bc7a25e8
                           </Space>
                           <Text strong style={{ color: '#ff4500' }}>฿{course.Price.toLocaleString()}</Text>
                         </Space>

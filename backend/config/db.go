@@ -220,19 +220,7 @@ func SetupDatabase() error {
 		}
 	}
 
-<<<<<<< HEAD
 	tutor := uint(1)
-=======
-	// Seed a default Tutor Profile
-	/*tutorProfile := &entity.TutorProfiles{
-		UserID: func(v uint) *uint { return &v }(User.ID), // Convert uint to *uint  // คืออะไร ??
-		Bio:    "Experienced software engineer with expertise in multiple programming languages.",
-	}
-	if err := db.FirstOrCreate(tutorProfile, &entity.TutorProfiles{UserID: tutorProfile.UserID}).Error; err != nil {
-		return fmt.Errorf("failed to create or find tutor profile: %w", err)
-	} */
-
->>>>>>> 1dc40d610700d55a503f92b6ac7ccee1bc7a25e8
 	for i := 1; i <= 10; i++ {
 		course := &entity.Courses{
 			Title:            fmt.Sprintf("Course %d", i),
@@ -241,7 +229,7 @@ func SetupDatabase() error {
 			TeachingPlatform: "Online",
 			Description:      fmt.Sprintf("This course provides comprehensive content on various topics. Course number %d.", i),
 			Duration:         uint(40 + i),
-			TutorProfileID:   TutorProfile.UserID,
+			TutorProfileID:   &tutor,
 			CourseCategoryID: &courseCategory.ID,
 		}
 	

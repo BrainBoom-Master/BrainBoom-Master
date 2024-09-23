@@ -244,7 +244,7 @@ async function GetCoursesByPriceDESC() {
   return res;
 }
 
-async function GetCourseCategories() {
+async function GetCourseCategories() {}
 
 
 

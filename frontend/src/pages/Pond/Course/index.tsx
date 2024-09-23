@@ -98,7 +98,6 @@ function Course() {
                           overflow: "hidden",
                         }}
                       />
-<<<<<<< HEAD
                       <div
                         style={{
                           marginTop: "5px",
@@ -147,54 +146,6 @@ function Course() {
               ) : (
                 <Empty description="ไม่พบคอร์สที่ค้นหา" />
               )}
-=======
-                    }
-                    style={{
-                      borderRadius: "15px",
-                      overflow: "hidden",
-                      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                      width: "200px",
-                      backgroundColor: "#fff",
-                      border: "1px solid #ddd",
-                    }}
-                    styles={{ body: { padding: "0px 10px 10px 10px" } }}
-                  >
-                    <Meta
-                      title={course.Title}
-                      description={`Tutor: ${course.TutorProfileID}`}
-                      style={{ fontSize: "12px" }}
-                    />
-                    <div
-                      style={{
-                        marginTop: "5px",
-                        display: "flex",
-                        alignItems: "center",
-                        fontSize: "12px",
-                        gap:"5px",
-                      }}
-                    >
-                      <Star
-                        size={15}
-                        weight="fill"
-                        style={{ color: "#ffcc00", marginLeft: "5px" }}
-                      />
-                      5.0
-                    </div>
-                    <div
-                      style={{
-                        marginTop: "5px",
-                        fontWeight: "bold",
-                        color: "#ff4500",
-                        fontSize: "14px",
-                      }}
-                    >
-                      <span className="currency">฿</span>
-                      {course.Price?.toFixed(2)}
-                    </div>
-                  </Card>
-                </div>
-              ))}
->>>>>>> 1dc40d610700d55a503f92b6ac7ccee1bc7a25e8
               <div
                 key={`more-btn-${category.id}`} 
                 style={{

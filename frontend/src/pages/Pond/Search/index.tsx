@@ -3,7 +3,7 @@ import { Card, Input, message, Space, Empty, Select } from "antd";
 import { Star } from "phosphor-react";
 import { useNavigate } from "react-router-dom";
 import HeaderComponent from "../../../components/header";
-import { GetCourses, SearchCourseByKeyword, GetCourseCategories, GetCourseByCategoryID } from "../../../services/https";
+import { GetCourses, GetCourseCategories, GetCourseByCategoryID,SearchReviewsByKeyword } from "../../../services/https";
 import { CourseInterface } from "../../../interfaces/ICourse";
 import { CourseCategoryInterface } from "../../../interfaces/ICourse_Category"
 
@@ -79,7 +79,7 @@ function SearchCourse() {
       if (value.trim() === "") {
         await getCourses();
       } else {
-        const searchResults = await SearchCourseByKeyword(value);
+        const searchResults = await SearchReviewsByKeyword(value);
 
         if (searchResults && Array.isArray(searchResults)) {
           setCourses(searchResults);
@@ -200,7 +200,6 @@ function SearchCourse() {
                         weight="fill"
                         style={{ color: "#ffcc00", marginLeft: "5px" }}
                       />
-<<<<<<< HEAD
                       {course.ID !== undefined &&
                             reviews[course.ID]?.length > 0
                               ? `Rating: ${
@@ -209,9 +208,6 @@ function SearchCourse() {
                                   course.ID
                                 ].length.toLocaleString()})`
                               : "Rating: 0 (0)"}
-=======
-                      5.0
->>>>>>> 1dc40d610700d55a503f92b6ac7ccee1bc7a25e8
                     </div>
                     <div
                       style={{
