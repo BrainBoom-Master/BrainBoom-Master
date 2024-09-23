@@ -277,14 +277,13 @@ function SearchCourse() {
                         style={{ color: "#ffcc00", marginLeft: "5px" }}
                       />
                       {course.ID !== undefined &&
-                        reviews[course.ID]?.length > 0
-                          ? `${reviews[
-                              course.ID
-                            ].length.toLocaleString()} Course Rating: ${
-                              averageRatings[course.ID] || 0
-                            } Ratings`
-                          : "0 Course Rating: 0 Ratings"
-                      }
+                            reviews[course.ID]?.length > 0
+                              ? `Rating: ${
+                                  averageRatings[course.ID] || 0
+                                } (${reviews[
+                                  course.ID
+                                ].length.toLocaleString()})`
+                              : "Rating: 0 (0)"}
                     </div>
                     <div
                       style={{

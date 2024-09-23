@@ -241,15 +241,6 @@ func SetupDatabase() error {
 		}
 	}
 
-	// Seed a default Tutor Profile
-	tutorProfile := &entity.TutorProfiles{
-		UserID: func(v uint) *uint { return &v }(User.ID), // Convert uint to *uint  // คืออะไร ??
-		Bio:    "Experienced software engineer with expertise in multiple programming languages.",
-	}
-	if err := db.FirstOrCreate(tutorProfile, &entity.TutorProfiles{UserID: tutorProfile.UserID}).Error; err != nil {
-		return fmt.Errorf("failed to create or find tutor profile: %w", err)
-	}
-
 	tutor := uint(1)
 	for i := 1; i <= 10; i++ {
 		course := &entity.Courses{
