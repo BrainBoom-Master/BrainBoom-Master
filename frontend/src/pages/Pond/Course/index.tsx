@@ -192,7 +192,7 @@ function Course() {
                         }}
                       >
                         <span className="currency">฿</span>
-                        {Number(course.Price?.toFixed(2)).toLocaleString()}
+                        {Number(course.Price)?.toFixed(2).toLocaleString()}
                       </div>
                     </Card>
                   </div>
