@@ -1,7 +1,7 @@
 //import { useEffect, useState } from 'react';
 import { Card, Button, Typography, Divider } from 'antd';
 import { useLocation  } from 'react-router-dom';
-import HeaderComponent from '../../../../components/header';
+import HeaderComponent from '../../../components/header';
 import moment from 'moment';
 
 const { Title, Text } = Typography;
@@ -15,7 +15,7 @@ function CourseDetail() {
   const formattedDate = moment(updatedAt).format('DD MMMM YYYY');
   const formattedTime = moment(updatedAt).format('HH:mm');
 
-  
+  // Your existing code with course data rendering
   return (
     <>
       <HeaderComponent />

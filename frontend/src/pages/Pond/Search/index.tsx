@@ -200,7 +200,18 @@ function SearchCourse() {
                         weight="fill"
                         style={{ color: "#ffcc00", marginLeft: "5px" }}
                       />
+<<<<<<< HEAD
+                      {course.ID !== undefined &&
+                            reviews[course.ID]?.length > 0
+                              ? `Rating: ${
+                                  averageRatings[course.ID] || 0
+                                } (${reviews[
+                                  course.ID
+                                ].length.toLocaleString()})`
+                              : "Rating: 0 (0)"}
+=======
                       5.0
+>>>>>>> 1dc40d610700d55a503f92b6ac7ccee1bc7a25e8
                     </div>
                     <div
                       style={{

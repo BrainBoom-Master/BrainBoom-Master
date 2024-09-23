@@ -98,6 +98,56 @@ function Course() {
                           overflow: "hidden",
                         }}
                       />
+<<<<<<< HEAD
+                      <div
+                        style={{
+                          marginTop: "5px",
+                          display: "flex",
+                          alignItems: "center",
+                          fontSize: "12px",
+                          gap: "5px",
+                        }}
+                      >
+                        <Star
+                          size={15}
+                          weight="fill"
+                          style={{ color: "#ffcc00", marginLeft: "5px" }}
+                        />
+                        <div style={{ display: "flex", alignItems: "center" }}>
+                          <span
+                            style={{
+                              color: "rgb(99, 94, 94)",
+                            }}
+                          >
+                            {course.ID !== undefined &&
+                            reviews[course.ID]?.length > 0
+                              ? `Rating: ${
+                                  averageRatings[course.ID] || 0
+                                } (${reviews[
+                                  course.ID
+                                ].length.toLocaleString()})`
+                              : "Rating: 0 (0)"}
+                          </span>
+                        </div>
+                      </div>
+                      <div
+                        style={{
+                          marginTop: "5px",
+                          fontWeight: "bold",
+                          color: "#ff4500",
+                          fontSize: "14px",
+                        }}
+                      >
+                        <span className="currency">฿</span>
+                        {Number(course.Price)?.toFixed(2).toLocaleString()}
+                      </div>
+                    </Card>
+                  </div>
+                ))
+              ) : (
+                <Empty description="ไม่พบคอร์สที่ค้นหา" />
+              )}
+=======
                     }
                     style={{
                       borderRadius: "15px",
@@ -144,6 +194,7 @@ function Course() {
                   </Card>
                 </div>
               ))}
+>>>>>>> 1dc40d610700d55a503f92b6ac7ccee1bc7a25e8
               <div
                 key={`more-btn-${category.id}`} 
                 style={{

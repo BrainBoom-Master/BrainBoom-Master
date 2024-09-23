@@ -1,8 +1,8 @@
 
 
-export interface TutorInterface {
-
-    ID: number;
+export interface Tutor {
+  
+    ID?: number;
 
     Education?: string;
 
@@ -10,9 +10,7 @@ export interface TutorInterface {
 
     Bio?: string;
 
-    ProfilePicture: string;
-
-    UserID: number;
+    UserID?: number;
     
   }
   

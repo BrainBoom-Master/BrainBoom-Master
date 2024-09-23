@@ -79,7 +79,6 @@ func SignUp(c *gin.Context) {
     }
 
     if userCheck.ID != 0 {
-        // If the user with the provided username already exists
         c.JSON(http.StatusConflict, gin.H{"error": "Username is already registered"})
         return
     }
@@ -106,8 +105,25 @@ func SignUp(c *gin.Context) {
         return
     }
 
+    // ตรวจสอบว่าผู้ใช้เป็น tutor หรือไม่
+    if payload.UserRoleID == 2 { // เปลี่ยน <tutor_role_id> เป็น ID ที่แท้จริงของบทบาท tutor
+        tutorProfile := entity.TutorProfiles{
+            UserID: &user.ID,
+            Bio: "",
+            Education: "",
+            Experience: "",
+        }
+
+        // บันทึก TutorProfiles
+        if err := db.Create(&tutorProfile).Error; err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to create tutor profile"})
+            return
+        }
+    }
+
     c.JSON(http.StatusCreated, gin.H{"message": "Sign-up successful"})
 }
+
 
 
 

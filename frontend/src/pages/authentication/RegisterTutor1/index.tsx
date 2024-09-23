@@ -35,9 +35,9 @@ function SignUpTutorPages() {
   };
 
   const onFinish = async (values: UsersInterface) => {
-
+    values.Profile = fileList[0].thumbUrl;
     let res = await CreateUser(values);
-
+    console.log(res);
     if (res.status === 201) {
       messageApi.open({
         type: "success",

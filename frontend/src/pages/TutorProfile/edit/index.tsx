@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import {
   Space,
   Button,
@@ -11,62 +11,61 @@ import {
   message,
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
-import { UsersInterface } from "../../../interfaces/IUser";
-import { GetUserById, UpdateUserById } from "../../../services/https/index";
-import { useNavigate, Link, useParams } from "react-router-dom";
-//import HeaderComponent from '../../../components/headertutor/index';
+import { Tutor } from "../../../interfaces/Tutor";
+import { GetTutorProfileByUserId, UpdateTutorById } from "../../../services/https/index";
+import { useNavigate, Link } from "react-router-dom";
 
 function EditTutor() {
   const navigate = useNavigate();
-  const { id } = useParams<{ id: any }>();
+  const UserID = localStorage.getItem('id') || 'Unknown User';
   const [messageApi, contextHolder] = message.useMessage();
   const [form] = Form.useForm();
 
-  // Fetch user data by ID
-  const getUserById = async (id: string) => {
-    let res = await GetUserById(id);
-    if (res.status === 200) {
-      form.setFieldsValue({
-        biography: res.data.biography,
-        education: res.data.education,
-        experience: res.data.experience,
-      });
-    } else {
-      messageApi.open({
-        type: "error",
-        content: "ไม่พบข้อมูลผู้ใช้",
-      });
-      setTimeout(() => {
-        navigate("/customer");
-      }, 2000);
-    }
-  };
-
-  // Update user data
-  const onFinish = async (values: UsersInterface) => {
-    let payload = {
-      ...values,
-    };
-    const res = await UpdateUserById(id, payload);
-    if (res.status === 200) {
-      messageApi.open({
-        type: "success",
-        content: res.data.message,
-      });
-      setTimeout(() => {
-        navigate("/profileuser");
-      }, 2000);
-    } else {
-      messageApi.open({
-        type: "error",
-        content: res.data.error,
-      });
-    }
-  };
-
   useEffect(() => {
-    getUserById(id);
-  }, [id]);
+    if (UserID) {
+      fetchTutorProfile(UserID);
+    }
+  }, [UserID]);
+
+  // Fetch tutor data by ID
+  const fetchTutorProfile = async (id: string) => {
+    try {
+      const res = await GetTutorProfileByUserId(id);
+      if (res.status === 200) {
+        form.setFieldsValue({
+          Bio: res.data.Bio,
+          Education: res.data.Education,
+          Experience: res.data.Experience,
+        });
+      } else {
+        messageApi.open({
+          type: "error",
+          content: "ไม่พบข้อมูลผู้สอน",
+        });
+        setTimeout(() => {
+          navigate("/users");
+        }, 2000);
+      }
+    } catch (error) {
+      messageApi.open({
+        type: "error",
+        content: "เกิดข้อผิดพลาดในการดึงข้อมูล",
+      });
+    }
+  };
+
+  // Update tutor data
+  const onFinish = async (values: Tutor) => {
+    const payload = { ...values };
+    const res = await UpdateTutorById(UserID, payload);
+
+    if (res.status === 200) {
+      messageApi.open({ type: "success", content: res.data.message });
+      setTimeout(() => navigate(`/tutor_profiles/users/${UserID}`), 2000);
+    } else {
+      messageApi.open({ type: "error", content: res.data.error });
+    }
+  };
 
   return (
     <div>
@@ -78,63 +77,47 @@ function EditTutor() {
             marginTop: '100px',
             width: '100%',
             maxWidth: 1400,
-            height: '80%',
+            height: 'auto',
             border: 'none',
             padding: '20px',
             boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
-            justifyContent: 'center',
           }}
         >
-          <h2>แก้ไขข้อมูลผู้ใช้</h2>
+          <h2 style={{ textAlign: 'left' }}>แก้ไขข้อมูลผู้สอน</h2>
           <Divider />
           <Form
-            name="basic"
+            name="tutorEditForm"
             form={form}
             layout="vertical"
             onFinish={onFinish}
             autoComplete="off"
           >
             <Row gutter={[16, 0]}>
-              <Col xs={24} sm={24} md={24} lg={24} xl={24}>
+              <Col xs={24}>
                 <Form.Item
                   label="ประวัติย่อ"
-                  name="biography"
-                  rules={[
-                    {
-                      required: true,
-                      message: "กรุณากรอกประวัติย่อ!",
-                    },
-                  ]}
+                  name="Bio"
+                  rules={[{ required: true, message: "กรุณากรอกประวัติย่อ!" }]}
                 >
-                  <Input.TextArea rows={2} placeholder="กรุณากรอกประวัติย่อ" />
+                  <Input.TextArea rows={2} placeholder="กรุณากรอกประวัติย่อ" style={{ textAlign: 'left' }} />
                 </Form.Item>
               </Col>
-              <Col xs={24} sm={24} md={24} lg={24} xl={24}>
+              <Col xs={24}>
                 <Form.Item
                   label="การศึกษา"
-                  name="education"
-                  rules={[
-                    {
-                      required: true,
-                      message: "กรุณากรอกการศึกษา!",
-                    },
-                  ]}
+                  name="Education"
+                  rules={[{ required: true, message: "กรุณากรอกการศึกษา!" }]}
                 >
-                  <Input.TextArea rows={2} placeholder="กรุณากรอกการศึกษา" />
+                  <Input.TextArea rows={2} placeholder="กรุณากรอกการศึกษา" style={{ textAlign: 'left' }} />
                 </Form.Item>
               </Col>
-              <Col xs={24} sm={24} md={24} lg={24} xl={24}>
+              <Col xs={24}>
                 <Form.Item
                   label="ประสบการณ์"
-                  name="experience"
-                  rules={[
-                    {
-                      required: true,
-                      message: "กรุณากรอกประสบการณ์!",
-                    },
-                  ]}
+                  name="Experience"
+                  rules={[{ required: true, message: "กรุณากรอกประสบการณ์!" }]}
                 >
-                  <Input.TextArea rows={2} placeholder="กรุณากรอกประสบการณ์" />
+                  <Input.TextArea rows={2} placeholder="กรุณากรอกประสบการณ์" style={{ textAlign: 'left' }} />
                 </Form.Item>
               </Col>
             </Row>
@@ -142,16 +125,12 @@ function EditTutor() {
               <Col style={{ marginTop: "40px" }}>
                 <Form.Item>
                   <Space>
-                    <Link to="/profileuser">
+                    <Link to="/users">
                       <Button htmlType="button" style={{ marginRight: "10px" }}>
                         ยกเลิก
                       </Button>
                     </Link>
-                    <Button
-                      type="primary"
-                      htmlType="submit"
-                      icon={<PlusOutlined />}
-                    >
+                    <Button type="primary" htmlType="submit" icon={<PlusOutlined />}>
                       บันทึก
                     </Button>
                   </Space>

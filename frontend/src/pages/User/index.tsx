@@ -79,19 +79,20 @@ function ProfileUser() {
             }}
           >
             <Row gutter={[16, 24]} justify="center">
-              <Col xs={24} sm={12} md={8} lg={6} xl={4}>
-                <img
-                  src={studentpic}
-                  alt="Profile"
-                  className="pic2"
-                  style={{
-                    width: '100%',
-                    height: 'auto',
-                    maxHeight: '100%',
-                    marginBottom: '20px',
-                  }}
-                />
-              </Col>
+            <Col xs={24} sm={12} md={8} lg={6} xl={4}>
+  <img
+    src={userData && userData.Profile ? userData.Profile : studentpic} // ใช้รูปประจำตัวจาก userData หรือรูปโปรไฟล์เริ่มต้น
+    alt="Profile"
+    className="pic2"
+    style={{
+      width: '100%',
+      height: 'auto',
+      maxHeight: '100%',
+      marginBottom: '20px',
+    }}
+  />
+</Col>
+
             </Row>
             <div style={{ textAlign: 'center' }}>
               <h1>ยินดีต้อนรับ, {username}</h1>
@@ -113,7 +114,7 @@ function ProfileUser() {
               </Button>
               <Button
                 style={{ width: 'calc(50% - 10px)' }}
-                onClick={() => navigate(`/users/changepassword/${id}`)} 
+                onClick={() => navigate(`/users/password/${id}`)} 
               >
                 <LockOutlined /> เปลี่ยนรหัสผ่าน
               </Button>

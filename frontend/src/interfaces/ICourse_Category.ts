@@ -1,6 +1,6 @@
 export interface CourseCategoryInterface {
 
-    ID?: number; 
+    IC?: number; 
   
     CategoryName: string; 
   

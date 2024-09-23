@@ -1,29 +1,24 @@
 import React, { useState, useEffect } from "react";
 import HeaderComponent from "../../../components/header";
-//import { Link } from "react-router-dom";
 import Modal from "./CreateReview/Pop_Up";
 import { GetReviewById, GetPaymentByIdUser } from "../../../services/https";
 import { message } from "antd";
 import { PaymentsReviewInterface } from "../../../interfaces/IPayment";
 import "./popup.css";
+import { Card } from "antd";
 
 const Review: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [currentCourseId, setCurrentCourseId] = useState<number | null>(null);
-  const [hasReviewed, setHasReviewed] = useState<{ [key: number]: boolean }>(
-    {}
-  );
+  const [hasReviewed, setHasReviewed] = useState<{ [key: number]: boolean }>({});
   const [payments, setPayments] = useState<PaymentsReviewInterface[]>([]);
   const [messageApi, contextHolder] = message.useMessage();
-  const [uid, setUid] = useState<number>(
-    Number(localStorage.getItem("id")) || 0
-  );
+  const [uid, setUid] = useState<number>(Number(localStorage.getItem("id")) || 0);
 
   useEffect(() => {
     setUid(Number(localStorage.getItem("id")));
     const fetchAllReviewsAndPayments = async () => {
       const reviewStatus: { [key: number]: boolean } = {};
-      
       const paymentsData = await GetPaymentByIdUser(uid);
 
       if (!paymentsData || paymentsData.length === 0) return;
@@ -43,7 +38,7 @@ const Review: React.FC = () => {
 
   const openModal = (id: number) => {
     if (hasReviewed[id]) {
-      messageApi.warning("You have already reviewed this course.");
+      messageApi.warning("คุณได้ทำการรีวิวแล้ว");
       return;
     }
     setCurrentCourseId(id);
@@ -66,33 +61,29 @@ const Review: React.FC = () => {
       <br />
       <br />
       <div className="setcourse">
-        <div className="review-layer">
+        <div className="review-layer"> {/*ตัวจัด 1fr 1fr*/}
           {payments.map((payment, index) => (
-            <div key={index} className="product-review">
-              <img
-                src={payment.Course.ProfilePicture}
-                alt={`${payment.Course.Title} Course`}
-                style={{
-                  width: "220px",
-                  height: "220px",
-                  borderRadius: "15px",
-                  objectFit: "cover",
-                }}
-              />
-
+            <Card className="product-review">
+              {payment.Course.ProfilePicture ? (
+                <div className="custom-image">
+                <img
+                  src={payment.Course.ProfilePicture}
+                  alt={`${payment.Course.Title} Course`}
+                />
+              </div>  
+              ) : (
+                <div>No image available</div> // แสดงข้อความถ้าไม่มีภาพ
+              )}
               <p className="text-product">
                 <strong>Name : {payment.Course.Title}</strong>
                 <br />
-                Tutor ID : {payment.Course.TutorProfileID}{" "}
-                {/*เอาออกดีไหม เเล้วเอาเป็นอะไรดี ?*/}
+                Tutor ID : {payment.Course.TutorProfileID}
                 <div className="button-open">
                   {hasReviewed[payment.CourseID!] ? (
                     <button
                       className="button-open-model"
                       onClick={() =>
-                        messageApi.warning(
-                          "You have already reviewed this course."
-                        )
+                        messageApi.warning("คุณได้ทำการรีวิวแล้ว")
                       }
                     >
                       Already Reviewed
@@ -116,7 +107,7 @@ const Review: React.FC = () => {
                   )}
                 </div>
               </p>
-            </div>
+            </Card>
           ))}
         </div>
       </div>

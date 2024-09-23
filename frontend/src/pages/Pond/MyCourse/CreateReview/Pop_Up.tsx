@@ -78,7 +78,7 @@ const Modal: React.FC<ModalProps> = ({
       if (res) {
         messageApi.open({
           type: "success",
-          content: "Saved successfully",
+          content: "ขอบคุณสำหรับการรีวิว",
         });
         onReviewSubmit(CourseID); // อัปเดตสถานะการรีวิวทันทีหลังจากบันทึกสำเร็จ
         setTimeout(() => {
