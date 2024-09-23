@@ -646,25 +646,20 @@ async function GetPaymentByIdCourse(courseID: number): Promise<PaymentsInterface
 
   try {
     const res = await fetch(`${apiUrl}/payments/courses/${courseID}`, requestOptions);
-
     if (res.status === 200) {
       const payments = await res.json();
     
       if (Array.isArray(payments)) {
         return payments as PaymentsInterface[]; 
       } else {
-        console.error("ข้อมูลการชำระเงินไม่ถูกต้อง");
         return false;
       }
     } else if (res.status === 404) {
-      console.error("ไม่พบการชำระเงินสำหรับคอร์สที่ระบุ");
       return null;
     } else {
-      console.error("เกิดข้อผิดพลาด:", res.statusText);
       return false;
     }
-  } catch (error) {
-    console.error("เกิดข้อผิดพลาดในการเรียก API:", error);
+  } catch {
     return false;
   }
 }

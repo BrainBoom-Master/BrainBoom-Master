@@ -1,13 +1,20 @@
 import { useEffect, useState } from "react";
 import { Card, Input, message, Space, Empty, Select } from "antd";
 import { Star } from "phosphor-react";
-import { useNavigate , useLocation} from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import HeaderComponent from "../../../components/header";
-import { GetCourses, SearchCourseByKeyword, GetCourseCategories, GetCourseByCategoryID, GetReviewById, GetCoursesByPriceDESC, GetCoursesByPriceASC} from "../../../services/https";
+import {
+  GetCourses,
+  SearchCourseByKeyword,
+  GetCourseCategories,
+  GetCourseByCategoryID,
+  GetReviewById,
+  GetCoursesByPriceDESC,
+  GetCoursesByPriceASC,
+} from "../../../services/https";
 import { CourseInterface } from "../../../interfaces/ICourse";
 import { CourseCategoryInterface } from "../../../interfaces/ICourse_Category";
 import { ReviewInterface } from "../../../interfaces/IReview";
-
 
 const { Meta } = Card;
 const { Search } = Input;
@@ -15,18 +22,13 @@ const { Search } = Input;
 function SearchCourse() {
   const [courses, setCourses] = useState<CourseInterface[]>([]);
   const [categories, setCategories] = useState<CourseCategoryInterface[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [reviews, setReviews] = useState<{
-    [courseID: number]: ReviewInterface[];
-  }>({});
-  const [averageRatings, setAverageRatings] = useState<{
-    [courseID: number]: number;
-  }>({});
-
+  const [reviews, setReviews] = useState<{ [courseID: number]: ReviewInterface[] }>({});
+  const [averageRatings, setAverageRatings] = useState<{ [courseID: number]: number }>({});
+  
   const navigate = useNavigate();
   const location = useLocation();
   const [categoryID, setCategoryID] = useState<number | undefined>();
-  const setCateID: number | undefined = location.state?.categoryID;
+  const setCateID = location.state?.categoryID;
 
   const handleCourseClick = (course: CourseInterface) => {
     navigate(`/course/${course.ID}`, { state: { course } });
@@ -35,20 +37,11 @@ function SearchCourse() {
   const fetchReviews = async (courseID: number) => {
     try {
       const reviewsData = await GetReviewById(courseID);
-      setReviews((prevReviews) => ({
-        ...prevReviews,
-        [courseID]: reviewsData,
-      }));
+      setReviews((prevReviews) => ({ ...prevReviews, [courseID]: reviewsData }));
 
       const ratings = reviewsData.map((review) => review.Rating ?? 0);
-      const average =
-        ratings.length > 0
-          ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length
-          : 0;
-      setAverageRatings((prevRatings) => ({
-        ...prevRatings,
-        [courseID]: parseFloat(average.toFixed(1)),
-      }));
+      const average = ratings.length > 0 ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length : 0;
+      setAverageRatings((prevRatings) => ({ ...prevRatings, [courseID]: parseFloat(average.toFixed(1)) }));
     } catch (error) {
       console.error(`Error fetching reviews for course ${courseID}:`, error);
     }
@@ -73,19 +66,17 @@ function SearchCourse() {
     } catch (error) {
       console.error("Failed to fetch courses:", error);
       message.error("ไม่สามารถดึงข้อมูลคอร์สได้");
-    } finally {
-      setLoading(false);
     }
   };
 
-  const GetCategory = async () => {
+  const getCategory = async () => {
     try {
       const categories = await GetCourseCategories();
       if (categories) {
         setCategories(categories);
       }
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      console.error("Error fetching categories:", error);
     }
   };
 
@@ -101,44 +92,30 @@ function SearchCourse() {
       throw new Error("Failed to fetch courses by category");
     }
   };
-  
 
   useEffect(() => {
-    GetCategory();
+    getCategory();
   }, []);
 
   useEffect(() => {
     const fetchCourses = async () => {
-      if (setCateID === undefined || setCateID === 0) {
-        await getCourses();
-      } else {
+      if (setCateID !== undefined && setCateID !== 0) {
         try {
           const courses = await getCoursesByCategory(setCateID);
           setCourses(courses);
         } catch {
           message.error("ไม่สามารถดึงข้อมูลคอร์สตามหมวดหมู่ได้");
         }
+      } else {
+        await getCourses();
       }
     };
-  
-    if (categoryID === undefined && setCateID) {
+
+    if (categoryID === undefined) {
       setCategoryID(setCateID);
       fetchCourses();
     }
   }, [setCateID, categoryID]);
-  
-  
-
-  useEffect(() => {
-    if (categoryID === undefined) {
-      getCourses();
-    } else {
-      getCoursesByCategory(categoryID).then(setCourses).catch((err) => {
-        console.error(err);
-        message.error("ไม่สามารถดึงข้อมูลคอร์สตามหมวดหมู่ได้");
-      });
-    }
-  }, [categoryID]);
 
   const handleSearch = async (value: string) => {
     try {
@@ -172,17 +149,16 @@ function SearchCourse() {
   };
 
   const handleSortChange = async (value: number | undefined) => {
-
     if (value === undefined || value === 0) {
       await getCourses();
-    } else if(value === 1){
+    } else if (value === 1) {
       try {
         const courses = await GetCoursesByPriceDESC();
         setCourses(courses);
       } catch {
         message.error("ไม่สามารถดึงข้อมูลคอร์สตามหมวดหมู่ได้");
       }
-    } else if(value === 2){
+    } else if (value === 2) {
       try {
         const courses = await GetCoursesByPriceASC();
         setCourses(courses);
@@ -191,9 +167,6 @@ function SearchCourse() {
       }
     }
   };
-  
-
-  if (loading) return <p>Loading...</p>;
 
   return (
     <>
@@ -240,7 +213,6 @@ function SearchCourse() {
               <Select.Option value={0}>เรียงลำดับตามราคา</Select.Option>
               <Select.Option value={1}>มากไปน้อย</Select.Option>
               <Select.Option value={2}>น้อยไปมาก</Select.Option>
-              
             </Select>
           </div>
           {courses.length > 0 ? (
@@ -258,10 +230,7 @@ function SearchCourse() {
                     cover={
                       <img
                         alt={course.Title}
-                        src={
-                          course.ProfilePicture ||
-                          "https://via.placeholder.com/200x200"
-                        }
+                        src={course.ProfilePicture || "https://via.placeholder.com/200x200"}
                         style={{
                           borderRadius: "20px",
                           height: "200px",
@@ -283,7 +252,7 @@ function SearchCourse() {
                     <Meta
                       title={course.Title}
                       description={`Tutor: ${course.TutorProfileID}`}
-                      style={{ fontSize: "12px", color:"#635E5E" }}
+                      style={{ fontSize: "12px", color: "#635E5E" }}
                     />
                     <div
                       style={{
@@ -299,14 +268,9 @@ function SearchCourse() {
                         weight="fill"
                         style={{ color: "#ffcc00", marginLeft: "5px" }}
                       />
-                      {course.ID !== undefined &&
-                        reviews[course.ID]?.length > 0
-                          ? `Rating: ${
-                              averageRatings[course.ID] || 0
-                            } (${reviews[
-                              course.ID
-                            ].length.toLocaleString()})`
-                          : "Rating: 0 (0)"
+                      {course.ID !== undefined && reviews[course.ID]?.length > 0
+                        ? `Rating: ${averageRatings[course.ID] || 0} (${reviews[course.ID].length.toLocaleString()})`
+                        : "Rating: 0 (0)"
                       }
                     </div>
                     <div

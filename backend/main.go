@@ -81,6 +81,7 @@ func main() {
 
 		//Payment By Mac
 		r.GET("/payments/user/:userID", payment.GetPaymentByIdUser) // ตะวันใช้เรียกดู user in MyCourse 
+		r.GET("/payments/courses/:courseID", payment.GetPaymentByIDCourse) 
 		router.GET("/payments", payment.ListAllPayments)
 		router.GET("/course-price/:id", payment.GetCoursePrice)
 		router.GET("/course-title/:id", payment.GetCourseName)
