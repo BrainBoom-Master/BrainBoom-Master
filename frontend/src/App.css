@@ -1,0 +1,104 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+body {
+  font-family: "Inter", sans-serif;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+
+
+
+.login {
+
+  margin: 0;
+
+  height: 100vh;
+
+  width: 100%;
+
+  /* overflow: scroll; */
+
+  background-color: #F5F5F5;
+
+}
+
+
+.header {
+
+  text-align: center;
+
+}
+
+
+.card-login {
+
+  overflow-y: scroll;
+
+  width: 70%;
+
+  height: auto;
+
+  max-height: 550px;
+
+}
+
+.card-profile {
+
+  overflow-y: scroll;
+
+  width: 50%;
+
+  height: auto;
+
+  max-height: 500px;
+
+}
+
+
+.images-logo {
+
+  width: 100%;
+
+  height: auto;
+
+  max-height: 400px;
+
+  object-fit: contain;
+  
+
+}
+
+.pic1 {
+  border-radius: 50px;
+
+  width: 100%;
+
+  height: auto;
+  
+  max-height: 100%;
+}
+
+
+.pic2 {
+
+  border-radius: 50px;
+
+}
+
+
+
+.login-form-button {
+
+  width: 100%;
+
+}
+
+.select-form-button {
+
+  width: 60%;
+
+}
