@@ -3,9 +3,10 @@ import HeaderComponent from '../../../components/header';
 import { Button, Input, Card, Row, Col, Typography, Space, Modal, message } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { GetCourseByTutorID, DeleteCourseByID, GetTutorProfileById, SearchCourseByKeyword } from '../../../services/https';
+import { GetCourseByTutorID, DeleteCourseByID, GetTutorProfileById, SearchCourseByKeyword, GetReviewById } from '../../../services/https';
 import { CourseInterface } from '../../../interfaces/ICourse';
 import { TutorInterface } from '../../../interfaces/Tutor';
+import { ReviewInterface } from '../../../interfaces/IReview';
 
 const { Search } = Input;
 const { Text, Title } = Typography;
@@ -22,6 +23,13 @@ function Tutor() {
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [modalText, setModalText] = useState<string>();
   const [deleteId, setDeleteId] = useState<number>();
+
+  const [reviews, setReviews] = useState<{
+    [courseID: number]: ReviewInterface[];
+  }>({});
+  const [averageRatings, setAverageRatings] = useState<{
+    [courseID: number]: number;
+  }>({});
 
   const navigate = useNavigate();
 
@@ -129,6 +137,36 @@ function Tutor() {
     fetchCourses();
   }, [userID]);
 
+  const fetchReviews = async (courseID: number) => {
+    try {
+      const reviewsData = await GetReviewById(courseID);
+      setReviews((prevReviews) => ({
+        ...prevReviews,
+        [courseID]: reviewsData,
+      }));
+
+      const ratings = reviewsData.map((review) => review.Rating ?? 0);
+      const average =
+        ratings.length > 0
+          ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length
+          : 0;
+      setAverageRatings((prevRatings) => ({
+        ...prevRatings,
+        [courseID]: parseFloat(average.toFixed(1)),
+      }));
+    } catch (error) {
+      console.error(`Error fetching reviews for course ${courseID}:`, error);
+    }
+  };
+
+  useEffect(() => {
+    if (courses.length > 0) {
+      courses.forEach((course) => {
+        fetchReviews(course.ID as number);
+      });
+    }
+  }, [courses]);
+
   if (loading) {
     return <p>Loading...</p>;
   }
@@ -211,9 +249,18 @@ function Tutor() {
                           <Title level={4} style={{ color: '#333d51', margin: "0px" }}>{course.Title}</Title>
                           <Text style={{ color: '#7d7d7d' }}>จำนวนผู้สมัคร: {/*{course.CountStd || 0}*/}</Text>
                           <Space>
-                            <Text>5.0{/*{course.Rating || 'N/A'} Tawun Edit Reviews*/}</Text>
+                            <Text style={{ color: '#7d7d7d' }}>
+                              {course.ID !== undefined &&
+                              reviews[course.ID]?.length > 0
+                                ? `Rating: ${
+                                    averageRatings[course.ID] || 0
+                                  } (${reviews[
+                                    course.ID
+                                  ].length.toLocaleString()})`
+                                : "Rating: 0 (0)"}
+                            </Text>
                           </Space>
-                          <Text strong style={{ color: '#ff4500' }}>฿{course.Price}</Text>
+                          <Text strong style={{ color: '#ff4500' }}>฿{Number(course.Price?.toFixed(2)).toLocaleString()}</Text>
                         </Space>
                       </Col>
                     </Row>

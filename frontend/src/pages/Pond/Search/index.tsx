@@ -260,7 +260,7 @@ function SearchCourse() {
                     <Meta
                       title={course.Title}
                       description={`Tutor: ${course.TutorProfileID}`}
-                      style={{ fontSize: "12px" }}
+                      style={{ fontSize: "12px", color:"#635E5E" }}
                     />
                     <div
                       style={{
@@ -278,12 +278,12 @@ function SearchCourse() {
                       />
                       {course.ID !== undefined &&
                         reviews[course.ID]?.length > 0
-                          ? `${reviews[
-                              course.ID
-                            ].length.toLocaleString()} Course Rating: ${
+                          ? `Rating: ${
                               averageRatings[course.ID] || 0
-                            } Ratings`
-                          : "0 Course Rating: 0 Ratings"
+                            } (${reviews[
+                              course.ID
+                            ].length.toLocaleString()})`
+                          : "Rating: 0 (0)"
                       }
                     </div>
                     <div
@@ -295,7 +295,7 @@ function SearchCourse() {
                       }}
                     >
                       <span className="currency">฿</span>
-                      {course.Price?.toFixed(2)}
+                      {Number(course.Price?.toFixed(2)).toLocaleString()}
                     </div>
                   </Card>
                 </div>
