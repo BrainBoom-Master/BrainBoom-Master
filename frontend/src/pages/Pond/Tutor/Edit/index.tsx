@@ -9,6 +9,7 @@ import { CourseInterface } from "../../../../interfaces/ICourse";
 import { CourseCategoryInterface } from "../../../../interfaces/ICourse_Category"
 import { GetCourseCategories, UpdateCourse } from '../../../../services/https';
 import { PlusOutlined } from '@ant-design/icons';
+import ImgCrop from 'antd-img-crop';
 
 function Edit() {
   const location = useLocation();
@@ -160,19 +161,21 @@ function Edit() {
                 style={{ width: '100%', height: '100%', borderRadius: '20px' }}
               />
             </div>
-            <Upload
-              fileList={fileList}
-              onChange={handleUploadChange}
-              maxCount={1}
-              beforeUpload={() => false}
-              listType="picture-card"
-              style={{ marginTop: '10px' }}
-            >
-              <div>
-                <PlusOutlined />
-                <div style={{ marginTop: 8 }}>อัพโหลดรูปประจำตัว</div>
-              </div>
-            </Upload>
+            <ImgCrop>
+              <Upload
+                fileList={fileList}
+                onChange={handleUploadChange}
+                maxCount={1}
+                beforeUpload={() => false}
+                listType="picture-card"
+                style={{ marginTop: '10px' }}
+              >
+                <div>
+                  <PlusOutlined />
+                  <div style={{ marginTop: 8 }}>อัพโหลดรูปประจำตัว</div>
+                </div>
+              </Upload>
+            </ImgCrop>
           </div>
 
           <div style={{
@@ -221,7 +224,13 @@ function Edit() {
                 name="Duration"
                 type="number"
                 value={formData.Duration}
-                onChange={handleChange}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  if (value >= 0) {
+                    handleChange(e);
+                  }
+                }}
+                min={0}
                 style={{
                   padding: '12px 15px',
                   borderRadius: '8px',
