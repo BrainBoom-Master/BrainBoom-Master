@@ -11,7 +11,7 @@ const { Header } = Layout;
 
 function HeaderTutor() {
   const username = localStorage.getItem('username') || 'Unknown User';
-  const userID = localStorage.getItem('id'); // ดึง userID จาก localStorage
+  const UserID = localStorage.getItem('id'); // ดึง userID จาก localStorage
 
   const [current, setCurrent] = useState("course");
   const navigate = useNavigate();
@@ -45,7 +45,7 @@ function HeaderTutor() {
       icon: <BookOutlined />,
     },
     {
-      label: userID ? <Link to={`/tutor_profiles/users/${userID}`}>My Tutor Profile</Link> : 'My Tutor Profile',
+      label: UserID ? <Link to={`/tutor_profiles/users/${UserID}`}>My Tutor Profile</Link> : 'My Tutor Profile',
       key: 'tutorProfile',
       icon: <BookOutlined />,
     },

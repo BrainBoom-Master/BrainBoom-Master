@@ -273,36 +273,7 @@ func SearchCourseByKeyword(c *gin.Context) {
     c.JSON(http.StatusOK, courses)
 }
 
-func GetCourseByPriceDESC(c *gin.Context) {
-	var courses []entity.Courses
 
-	db := config.DB()
-	if err := db.Order("price desc").Find(&courses).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Course not found"})
-			return
-		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
 
-	c.JSON(http.StatusOK, courses)
-}
-
-func GetCourseByPriceASC(c *gin.Context) {
-	var courses []entity.Courses
-
-	db := config.DB()
-	if err := db.Order("price asc").Find(&courses).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Course not found"})
-			return
-		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, courses)
-}
 
 // POST /payment

@@ -4,8 +4,10 @@ import (
     "net/http"
     "github.com/gin-gonic/gin"
     "github.com/Parichatx/user-system2/config"
+    //"github.com/Parichatx/user-system2/config/config.go"
     "github.com/Parichatx/user-system2/entity"
     "github.com/go-playground/validator/v10"
+    "golang.org/x/crypto/bcrypt"
 )
 
 var validate = validator.New()
@@ -86,4 +88,66 @@ func Delete(c *gin.Context) {
     }
 
     c.JSON(http.StatusOK, gin.H{"message": "Deleted successful"})
+}
+
+func ChangePassword(c *gin.Context) {
+    var payload struct {
+        OldPassword    string `json:"old_password" binding:"required"`
+        NewPassword    string `json:"new_password" binding:"required"` // กำหนดความยาวขั้นต่ำ
+        ConfirmPassword string `json:"confirm_password" binding:"required,eqfield=NewPassword"`
+    }
+
+    // ตรวจสอบว่ารูปแบบข้อมูลที่ส่งมาถูกต้องหรือไม่
+    if err := c.ShouldBindJSON(&payload); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input: " + err.Error()})
+        return
+    }
+
+    // ดึง ID ผู้ใช้จาก URL
+    UserID := c.Param("id")
+
+    var user entity.Users
+    db := config.DB()
+
+    // ค้นหาผู้ใช้จาก ID
+    result := db.First(&user, UserID)
+    if result.Error != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+        return
+    }
+
+    // ตรวจสอบว่ารหัสผ่านเก่าตรงกันหรือไม่
+    if !CheckPasswordHash(payload.OldPassword, []byte(user.Password)) {
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "Old password is incorrect"})
+        return
+    }
+
+    // แฮชรหัสผ่านใหม่
+    hashedPassword, err := HashPassword(payload.NewPassword)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Error hashing the password"})
+        return
+    }
+
+    // อัปเดตรหัสผ่านในฐานข้อมูล
+    user.Password = hashedPassword
+    result = db.Save(&user)
+    if result.Error != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not update password"})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"message": "Password updated successfully"})
+}
+
+// hashPassword เป็น function สำหรับการแปลง password
+func HashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	return string(bytes), err
+}
+
+// checkPasswordHash เป็น function สำหรับ check password ที่ hash แล้ว ว่าตรงกันหรือไม่
+func CheckPasswordHash(password string, hash []byte) bool {
+	err := bcrypt.CompareHashAndPassword(hash, []byte(password))
+	return err == nil
 }

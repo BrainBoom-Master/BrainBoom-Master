@@ -1,9 +1,7 @@
-import { useState } from 'react';
+//import { useEffect, useState } from 'react';
 import { Card, Button, Typography, Divider } from 'antd';
 import { useLocation  } from 'react-router-dom';
-import HeaderComponent from '../../../../components/header';
-import Example_Review from '../../CourseDetail/Model/Example_Review';
-import ModalTest from "../../CourseDetail/Model/Model";
+import HeaderComponent from '../../../components/header';
 import moment from 'moment';
 
 const { Title, Text } = Typography;
@@ -13,18 +11,11 @@ function CourseDetail() {
   const course = location.state?.course;
   console.log(course.ID);  
 
-  const [isModalVisible, setIsModalVisible] = useState(false);
-
   const updatedAt = course.UpdatedAt;
   const formattedDate = moment(updatedAt).format('DD MMMM YYYY');
   const formattedTime = moment(updatedAt).format('HH:mm');
 
-  const showModal = () => {
-    setIsModalVisible(true);
-  };
-
-  const handleCancel = () => {setIsModalVisible(false);};
-  
+  // Your existing code with course data rendering
   return (
     <>
       <HeaderComponent />
@@ -159,7 +150,50 @@ function CourseDetail() {
                 gap: '15px',
               }}
             >
-              <Example_Review course_id={course.ID}></Example_Review>
+              {/* {reviews.map((review) => (
+                <Card
+                  key={review.id}
+                  hoverable
+                  style={{
+                    borderRadius: '15px',
+                    overflow: 'hidden',
+                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                    width: '100%',
+                    padding: '0px',
+                  }}
+                  bodyStyle={{ padding: '10px' }}
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: '15px',
+                    }}
+                  >
+                    <img
+                      src={review.imageUrl}
+                      alt={review.name}
+                      style={{
+                        borderRadius: '50%',
+                        objectFit: 'cover',
+                        width: '65px',
+                        height: '65px',
+                      }}
+                    />
+                    <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+                      <Text strong style={{ fontSize: '16px' }}>
+                        {review.name}
+                      </Text>
+                      <span style={{ color: '#FFD700', fontSize: '16px', fontWeight: 'bold' }}>
+                        {'★'.repeat(Math.floor(review.rating))}
+                      </span>
+                      <Text type="secondary" style={{ marginTop: '5px' }}>
+                        {review.comment}
+                      </Text>
+                    </div>
+                  </div>
+                </Card>
+              ))} */}
             </div>
             <div
               style={{
@@ -177,7 +211,7 @@ function CourseDetail() {
                   textAlign: 'center',
                   color: '#002A48',
                   margin: '10px 0',
-                }} onClick={showModal}
+                }}
               >
                 ดูเพิ่มเติม
               </Button>
@@ -185,7 +219,6 @@ function CourseDetail() {
           </div>
         </div>
       </section>
-      <ModalTest isVisible={isModalVisible} handleCancel={handleCancel} id={course.ID} />
     </>
   );
 }

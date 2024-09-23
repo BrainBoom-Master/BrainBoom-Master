@@ -5,6 +5,7 @@ import { CourseInterface } from "../../interfaces/ICourse";
 import { ReviewInterface } from "../../interfaces/IReview";
 import { PaymentsInterface } from "../../interfaces/IPayment";
 import { LikeStatusResponse } from "../../interfaces/ILike";
+import { Tutor as TutorInterface } from "../../interfaces/Tutor";
 
 const apiUrl = "http://localhost:8000";
 
@@ -19,16 +20,24 @@ const getAuthHeader = () => {
 async function SignIn(data: SignInInterface) {
   return await axios
     .post(`${apiUrl}/signin`, data)
-    .then((res) => {
+    .then(async (res) => {
       // เมื่อผู้ใช้ล็อกอินสำเร็จ เก็บ token ใน localStorage
       const token = res.data.token;
       const tokenType = res.data.token_type || "Bearer";
       localStorage.setItem("token", token);
       localStorage.setItem("token_type", tokenType);
+
+      // ดึง user ID จาก response
+      //const userId = res.data.userId; // สมมุติว่า response มี userId
+
+      // บันทึก login history
+      //await AddLoginHistory(userId);
+
       return res;
     })
     .catch((e) => e.response);
 }
+
 
 // ฟังก์ชันสำหรับการจัดการผู้ใช้
 
@@ -98,12 +107,9 @@ async function CreateUser(data: UsersInterface) {
 }
 
 // อัปเดตพาสเวิร์ด
-async function UpdatePasswordById(
-  id: string,
-  payload: { current_password: string; new_password: string }
-) {
+async function UpdatePasswordById(id: string, data: { old_password: string; new_password: string; confirm_password: string }) {
   return await axios
-    .put(`${apiUrl}/users/${id}/update-password`, payload, {
+    .put(`${apiUrl}/users/password/${id}`, data, {
       headers: {
         "Content-Type": "application/json",
         Authorization: getAuthHeader(), // ส่ง Authorization Header ในคำขอ
@@ -113,18 +119,45 @@ async function UpdatePasswordById(
     .catch((e) => e.response);
 }
 
-// ดึงข้อมูลโปรไฟล์ของ tutor ตาม ID
-async function GetTutorProfileById(UserID: number) {
+
+async function GetTutors() {
   return await axios
-    .get(`${apiUrl}/tutor_profiles/${UserID}`, {
+    .get(`${apiUrl}/tutor_profiles`, {
       headers: {
         "Content-Type": "application/json",
-        Authorization: getAuthHeader(),
+        Authorization: getAuthHeader(), // ส่ง Authorization Header ในคำขอ
       },
     })
     .then((res) => res)
     .catch((e) => e.response);
 }
+
+async function GetTutorProfileByUserId(UserID: string) {
+  return await axios
+    .get(`${apiUrl}/tutor_profiles/${UserID}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: getAuthHeader(), // ส่ง Authorization Header ในคำขอ
+      },
+    })
+    .then((res) => res)
+    .catch((e) => e.response);
+}
+
+// อัปเดตข้อมูลตาม ID
+async function UpdateTutorById(UserID: string, data: TutorInterface) {
+  return await axios
+    .put(`${apiUrl}/tutor_profiles/${UserID}`, data, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: getAuthHeader(), // ส่ง Authorization Header ในคำขอ
+      },
+    })
+    .then((res) => res)
+    .catch((e) => e.response);
+}
+
+
 
 interface LoginData {
   username: string;
@@ -141,24 +174,36 @@ const loginService = async (data: LoginData): Promise<LoginResponse> => {
   return response.data;
 };
 
-//Pond
-async function GetCourses() {
-  const requestOptions = {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
+//History
+
+async function GetLoginHistory(userId: number) {
+  return await axios
+    .get(`${apiUrl}/login-history/${userId}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: getAuthHeader(),
+      },
+    })
+    .then((res) => res.data)
+    .catch((e) => e.response);
+}
+
+async function AddLoginHistory(userId: number) {
+  const data = {
+    userId,
+    LoginTimeStamp: new Date().toISOString(),
+    
   };
 
-  const res = await fetch(`${apiUrl}/courses`, requestOptions).then((res) => {
-    if (res.status === 200) {
-      return res.json();
-    } else {
-      throw new Error("Response is not in JSON format");
-    }
-  });
-
-  return res;
+  return await axios
+    .post(`${apiUrl}/login-history`, data, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: getAuthHeader(),
+      },
+    })
+    .then((res) => res.data)
+    .catch((e) => e.response);
 }
 
 async function GetCoursesByPriceASC() {
@@ -200,6 +245,12 @@ async function GetCoursesByPriceDESC() {
 }
 
 async function GetCourseCategories() {
+
+
+
+//Pond
+async function GetCourses() {
+
   const requestOptions = {
     method: "GET",
     headers: {
@@ -207,7 +258,7 @@ async function GetCourseCategories() {
     },
   };
 
-  const res = await fetch(`${apiUrl}/categories`, requestOptions).then((res) => {
+  const res = await fetch(`${apiUrl}/courses`, requestOptions).then((res) => {
     if (res.status === 200) {
       return res.json();
     } else {
@@ -225,46 +276,34 @@ async function CreateCourse(data: CourseInterface) {
     body: JSON.stringify(data),
   };
 
-  try {
-    const res = await fetch(`${apiUrl}/courses`, requestOptions);
-    console.log(data);
-
-    if (res.ok) { 
-      return await res.json();
+  const res = await fetch(`${apiUrl}/courses`, requestOptions).then((res) => {
+    if (res.status == 201) {
+      return res.json();
     } else {
-      const errorData = await res.json();
-      console.error('Error creating course:', errorData);
-      return { success: false, message: errorData.error || 'Unknown error' }; 
+      return false;
     }
-  } catch (error) {
-    console.error('Network error:', error);
-    return { success: false, message: 'Network error occurred' };
-  }
+  });
+
+  return res;
 }
 
-async function UpdateCourse(id: number, data: CourseInterface) {
+async function UpdateCourse(data: CourseInterface) {
   const requestOptions = {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   };
 
-  try {
-    const res = await fetch(`${apiUrl}/courses/${id}`, requestOptions);
-    
-    if (res.ok) {
-      return await res.json();
+  const res = await fetch(`${apiUrl}/courses`, requestOptions).then((res) => {
+    if (res.status == 200) {
+      return res.json();
     } else {
-      const errorData = await res.json();
-      console.error('Error updating course:', errorData);
-      return false; // หรือคุณสามารถส่งคืนข้อความผิดพลาดที่ชัดเจนขึ้นได้
+      return false;
     }
-  } catch (error) {
-    console.error('Network error:', error);
-    return false;
-  }
-}
+  });
 
+  return res;
+}
 
 async function GetCourseById(id: number) {
   const requestOptions = {
@@ -331,48 +370,24 @@ async function GetCourseByTutorID(tutorID: number) {
     }
   } catch (error) {
     console.error("Error fetching courses:", error);
-    return [];
+    return []; // คืนค่าที่เป็น Array แทน `false`
   }
 }
 
-async function SearchCourseByKeyword(keyword: string){
+async function DeleteCourse(id: number) {
   try {
-      const query = new URLSearchParams();
-      query.append("keyword", keyword);
-
-      const response = await fetch(`${apiUrl}/courses/search?${query.toString()}`, {
-          method: "GET",
-          headers: {
-              "Content-Type": "application/json",
-          },
-      });
-
-      if (response.status === 204) return [];
-      if (!response.ok) throw new Error('การตอบสนองของเครือข่ายไม่ถูกต้อง');
-      return await response.json();
-  } catch (error) {
-      console.error('ข้อผิดพลาดในการค้นหาคอร์สตามคำสำคัญ:', error);
-      return false;
-  }
-};
-
-
-
-async function DeleteCourseByID(id: number | undefined) {
-  const requestOptions = {
-    method: "DELETE"
-  };
-
-  const res = await fetch(`${apiUrl}/courses/delete/${id}`, requestOptions)
-    .then((res) => {
-      if (res.status == 200) {
-        return true;
-      } else {
-        return false;
-      }
+    const response = await fetch(`${apiUrl}/courses/${id}`, {
+      method: "DELETE",
     });
 
-  return res;
+    if (response.ok) {
+      console.log("Course deleted successfully");
+    } else {
+      console.error("Failed to delete course");
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
 }
 
 // Reviews By Tawun
@@ -446,7 +461,7 @@ export const GetReviewById = async (id: number): Promise<ReviewInterface[]> => {
 // ดึงรีวิวที่กรองตามเงื่อนไข
 export const GetFilteredReviews = async (starLevel: string, courseID?: number): Promise<ReviewInterface[] | false> => {
   try {
-      const query = new URLSearchParams();
+      let query = new URLSearchParams();
       query.append("starLevel", starLevel);
       if (courseID !== undefined) {
           query.append("courseID", courseID.toString());
@@ -470,7 +485,7 @@ export const GetFilteredReviews = async (starLevel: string, courseID?: number): 
 // ค้นหารีวิวตามคำสำคัญ
 export const SearchReviewsByKeyword = async (keyword: string, courseID: number): Promise<ReviewInterface[] | false> => {
   try {
-      const query = new URLSearchParams();
+      let query = new URLSearchParams();
       query.append("keyword", keyword);
       query.append("courseID", courseID.toString());
 
@@ -596,7 +611,7 @@ async function GetTotalCourse() {
     },
   };
 
-  const res = await fetch(`${apiUrl}/course-count`, requestOptions)
+  let res = await fetch(`${apiUrl}/course-count`, requestOptions)
     .then((res) => {
       if (res.status == 200) {
         return res.json();
@@ -721,22 +736,26 @@ export {
   CreateUser,
   UpdatePasswordById,
   loginService,
-  GetTutorProfileById,
+  GetTutorProfileByUserId,
+  GetTutors,
+  UpdateTutorById,
+  GetLoginHistory,
+  AddLoginHistory,
   //Course Pond
   GetCourses,
   GetCoursesByPriceASC,
   GetCoursesByPriceDESC,
   GetCourseCategories,
+
   CreateCourse,
   UpdateCourse,
   GetCourseById,
   GetCourseByCategoryID,
   GetCourseByTutorID,
-  SearchCourseByKeyword,
-  DeleteCourseByID,
+  DeleteCourse,
   //Admin Pai
   GetTotalCourse,
-  //Payment Mac
+  //Payment Max
   GetPaymentByIdUser, // ตะวันใช้ get ข้อมูลลง mycourse
   GetPayments,
   GetPriceById,

@@ -3,11 +3,9 @@ import { Card, Input, message, Space, Empty, Select } from "antd";
 import { Star } from "phosphor-react";
 import { useNavigate } from "react-router-dom";
 import HeaderComponent from "../../../components/header";
-import { GetCourses, SearchCourseByKeyword, GetCourseCategories, GetCourseByCategoryID, GetReviewById, GetCoursesByPriceDESC, GetCoursesByPriceASC} from "../../../services/https";
+import { GetCourses, SearchCourseByKeyword, GetCourseCategories, GetCourseByCategoryID } from "../../../services/https";
 import { CourseInterface } from "../../../interfaces/ICourse";
-import { CourseCategoryInterface } from "../../../interfaces/ICourse_Category";
-import { ReviewInterface } from "../../../interfaces/IReview";
-
+import { CourseCategoryInterface } from "../../../interfaces/ICourse_Category"
 
 const { Meta } = Card;
 const { Search } = Input;
@@ -16,61 +14,25 @@ function SearchCourse() {
   const [courses, setCourses] = useState<CourseInterface[]>([]);
   const [categories, setCategories] = useState<CourseCategoryInterface[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [reviews, setReviews] = useState<{
-    [courseID: number]: ReviewInterface[];
-  }>({});
-  const [averageRatings, setAverageRatings] = useState<{
-    [courseID: number]: number;
-  }>({});
+  const [error, setError] = useState<string | null>(null);
 
   const navigate = useNavigate();
-  const [categoryID, setCategoryID] = useState<number | undefined>();
+  const [categoryID, setCategoryID] = useState<number>();
 
   const handleCourseClick = (course: CourseInterface) => {
     navigate(`/course/${course.ID}`, { state: { course } });
   };
 
-  const fetchReviews = async (courseID: number) => {
-    try {
-      const reviewsData = await GetReviewById(courseID);
-      setReviews((prevReviews) => ({
-        ...prevReviews,
-        [courseID]: reviewsData,
-      }));
-
-      const ratings = reviewsData.map((review) => review.Rating ?? 0);
-      const average =
-        ratings.length > 0
-          ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length
-          : 0;
-      setAverageRatings((prevRatings) => ({
-        ...prevRatings,
-        [courseID]: parseFloat(average.toFixed(1)),
-      }));
-    } catch (error) {
-      console.error(`Error fetching reviews for course ${courseID}:`, error);
-    }
-  };
-
-  useEffect(() => {
-    if (courses.length > 0) {
-      courses.forEach((course) => {
-        fetchReviews(course.ID as number);
-      });
-    }
-  }, [courses]);
-
   const getCourses = async () => {
     try {
       const course = await GetCourses();
-      if (course && Array.isArray(course)) {
+      if (course) {
         setCourses(course);
       } else {
-        throw new Error("No courses found");
+        setError("No courses found");
       }
-    } catch (error) {
-      console.error("Failed to fetch courses:", error);
-      message.error("ไม่สามารถดึงข้อมูลคอร์สได้");
+    } catch {
+      setError("Failed to fetch courses");
     } finally {
       setLoading(false);
     }
@@ -87,19 +49,16 @@ function SearchCourse() {
     }
   };
 
-  const getCoursesByCategory = async (categoryId: number): Promise<CourseInterface[]> => {
+  const getCoursesByCategory = async (categoryId: number) => {
     try {
       const coursesByCategory = await GetCourseByCategoryID(categoryId);
-      if (Array.isArray(coursesByCategory)) {
-        return coursesByCategory;
-      } else {
-        throw new Error("No courses found for this category");
+      if (coursesByCategory) {
+        setCourses(coursesByCategory);
       }
     } catch {
-      throw new Error("Failed to fetch courses by category");
+      setError("Failed to fetch courses by category");
     }
   };
-  
 
   useEffect(() => {
     getCourses();
@@ -110,12 +69,10 @@ function SearchCourse() {
     if (categoryID === undefined) {
       getCourses();
     } else {
-      getCoursesByCategory(categoryID).then(setCourses).catch((err) => {
-        console.error(err);
-        message.error("ไม่สามารถดึงข้อมูลคอร์สตามหมวดหมู่ได้");
-      });
+      getCoursesByCategory(categoryID);
     }
   }, [categoryID]);
+  
 
   const handleSearch = async (value: string) => {
     try {
@@ -123,6 +80,7 @@ function SearchCourse() {
         await getCourses();
       } else {
         const searchResults = await SearchCourseByKeyword(value);
+
         if (searchResults && Array.isArray(searchResults)) {
           setCourses(searchResults);
         } else {
@@ -136,62 +94,38 @@ function SearchCourse() {
 
   const handleCategoryChange = async (value: number | undefined) => {
     setCategoryID(value);
-    if (value === undefined || value === 0) {
-      await getCourses();
+    if (value === undefined) {
+      const course = await GetCourses();
+      setCourses(course);
     } else {
-      try {
-        const courses = await getCoursesByCategory(value);
-        setCourses(courses);
-      } catch {
-        message.error("ไม่สามารถดึงข้อมูลคอร์สตามหมวดหมู่ได้");
-      }
-    }
-  };
-
-  const handleSortChange = async (value: number | undefined) => {
-
-    if (value === undefined || value === 0) {
-      await getCourses();
-    } else if(value === 1){
-      try {
-        const courses = await GetCoursesByPriceDESC();
-        setCourses(courses);
-      } catch {
-        message.error("ไม่สามารถดึงข้อมูลคอร์สตามหมวดหมู่ได้");
-      }
-    } else if(value === 2){
-      try {
-        const courses = await GetCoursesByPriceASC();
-        setCourses(courses);
-      } catch {
-        message.error("ไม่สามารถดึงข้อมูลคอร์สตามหมวดหมู่ได้");
-      }
+      const course = await GetCourseByCategoryID(value);
+      setCourses(course);
     }
   };
   
 
   if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error}</p>;
 
   return (
     <>
       <HeaderComponent />
       <section style={{ padding: "100px 50px 30px 50px" }}>
         <Space direction="vertical" size="large" style={{ width: "100%" }}>
-          <div
-            style={{
+          <div 
+            style = {{
               display: "flex",
-              flexDirection: "row",
+              flexDirection:"row",
               justifyContent: "space-between",
               width: "100%",
             }}
           >
             <Select
-              defaultValue={0}
               placeholder="เลือกหมวดหมู่"
               onChange={handleCategoryChange}
-              style={{ width: '20%', marginBottom: '10px' }}
+              style={{ width: '25%', marginBottom: '10px' }}
             >
-              <Select.Option value={0}>คอร์สทั้งหมด</Select.Option>
+              <Select.Option value={undefined}>เลือกหมวดหมู่</Select.Option>
               {categories.map((category) => (
                 <Select.Option key={category.ID} value={category.ID}>
                   {category.CategoryName}
@@ -208,17 +142,6 @@ function SearchCourse() {
                 marginBottom: "10px",
               }}
             />
-            <Select
-              defaultValue={0}
-              placeholder="เรียงลำดับตามราคา"
-              onChange={handleSortChange}
-              style={{ width: '20%', marginBottom: '10px' }}
-            >
-              <Select.Option value={0}>เรียงลำดับตามราคา</Select.Option>
-              <Select.Option value={1}>มากไปน้อย</Select.Option>
-              <Select.Option value={2}>น้อยไปมาก</Select.Option>
-              
-            </Select>
           </div>
           {courses.length > 0 ? (
             <div
@@ -256,6 +179,7 @@ function SearchCourse() {
                       backgroundColor: "#fff",
                       border: "1px solid #ddd",
                     }}
+                    styles={{body:{ padding: "10px" }}}
                   >
                     <Meta
                       title={course.Title}
@@ -276,6 +200,7 @@ function SearchCourse() {
                         weight="fill"
                         style={{ color: "#ffcc00", marginLeft: "5px" }}
                       />
+<<<<<<< HEAD
                       {course.ID !== undefined &&
                             reviews[course.ID]?.length > 0
                               ? `Rating: ${
@@ -284,6 +209,9 @@ function SearchCourse() {
                                   course.ID
                                 ].length.toLocaleString()})`
                               : "Rating: 0 (0)"}
+=======
+                      5.0
+>>>>>>> 1dc40d610700d55a503f92b6ac7ccee1bc7a25e8
                     </div>
                     <div
                       style={{

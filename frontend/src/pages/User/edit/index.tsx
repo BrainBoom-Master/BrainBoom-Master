@@ -1,17 +1,39 @@
-import React, { useEffect } from "react";
-import { Space, Button, Col, Row, Divider, Form, Input, Card, message, DatePicker, InputNumber, Select } from "antd";
+import React, { useEffect, useState } from "react";
+import { Space, Button, Col, Row, Divider, Form, Input, Card, message, DatePicker, Select, Upload } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { UsersInterface } from "../../../interfaces/IUser";
 import { GetUserById, UpdateUserById } from "../../../services/https/index";
-import { useNavigate, Link, useParams } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import dayjs from "dayjs";
-//import HeaderComponent from '../../../components/header/index';
+import ImgCrop from "antd-img-crop";
+import { UploadFile, UploadProps } from "antd";
 
 function EditUser() {
   const navigate = useNavigate();
   const id = localStorage.getItem('id') || 'Unknown User';
   const [messageApi, contextHolder] = message.useMessage();
   const [form] = Form.useForm();
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
+
+  // ฟังก์ชันอัปเดตรายการไฟล์รูปภาพ
+  const onChange: UploadProps["onChange"] = ({ fileList: newFileList }) => {
+    setFileList(newFileList);
+  };
+
+  const onPreview = async (file: UploadFile) => {
+    let src = file.url as string;
+    if (!src) {
+      src = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file.originFileObj as File);
+        reader.onload = () => resolve(reader.result as string);
+      });
+    }
+    const image = new Image();
+    image.src = src;
+    const imgWindow = window.open(src);
+    imgWindow?.document.write(image.outerHTML);
+  };
 
   // ดึงข้อมูลผู้ใช้เมื่อ id มีการเปลี่ยนแปลง
   useEffect(() => {
@@ -26,32 +48,40 @@ function EditUser() {
       const res = await GetUserById(id);
       if (res.status === 200) {
         form.setFieldsValue({
-          first_name: res.data.first_name,
-          last_name: res.data.last_name,
-          email: res.data.email,
-          phone_number: res.data.phone_number,
+          FirstName: res.data.FirstName,
+          LastName: res.data.LastName,
           birthday: dayjs(res.data.birthday),
-          age: res.data.age,
           gender_id: res.data.gender?.ID,
         });
+        // ตั้งค่าโปรไฟล์รูปภาพ (ถ้ามี)
+        if (res.data.Profile) {
+          setFileList([
+            {
+              uid: "-1",
+              name: "profile",
+              status: "done",
+              url: res.data.Profile, // URL รูปโปรไฟล์ที่ดึงมาจาก API
+            },
+          ]);
+        }
       } else {
         messageApi.open({ type: "error", content: "ไม่พบข้อมูลผู้ใช้" });
         setTimeout(() => navigate("/"), 2000);
       }
     } catch (error) {
-      console.error('Error fetching user data:', error);
+      console.error("Error fetching user data:", error);
       messageApi.open({ type: "error", content: "ไม่สามารถดึงข้อมูลผู้ใช้ได้" });
     }
   };
 
   // ฟังก์ชันบันทึกข้อมูลผู้ใช้เมื่อแก้ไขเสร็จ
   const onFinish = async (values: UsersInterface) => {
-    const payload = { ...values };
-    const res = await UpdateUserById(id, payload);
+    values.Profile = fileList[0].thumbUrl
+    const res = await UpdateUserById(id, values);
 
     if (res.status === 200) {
       messageApi.open({ type: "success", content: res.data.message });
-      setTimeout(() => navigate("/customer"), 2000);
+      setTimeout(() => navigate("/users"), 2000);
     } else {
       messageApi.open({ type: "error", content: res.data.error });
     }
@@ -60,69 +90,35 @@ function EditUser() {
   return (
     <div>
       {contextHolder}
-      <Row style={{ height: '100vh', backgroundColor: '#FFFFFF', margin: 0 }}>
+      <Row style={{ height: "100vh", backgroundColor: "#FFFFFF", margin: 0 }}>
         <Card
           className="card-profile"
           style={{
-            marginTop: '100px',
-            width: '100%',
+            marginTop: "100px",
+            width: "100%",
             maxWidth: 1400,
-            height: 'auto',
-            border: 'none',
-            padding: '20px',
-            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+            height: "auto",
+            border: "none",
+            padding: "20px",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
           }}
         >
           <h2>แก้ไขข้อมูลผู้ใช้</h2>
           <Divider />
-          <Form
-            name="basic"
-            form={form}
-            layout="vertical"
-            onFinish={onFinish}
-            autoComplete="off"
-          >
+          <Form name="basic" form={form} layout="vertical" onFinish={onFinish} autoComplete="off">
             <Row gutter={[16, 0]}>
               <Col xs={24} sm={24} md={24} lg={24} xl={12}>
-                <Form.Item
-                  label="ชื่อจริง"
-                  name="first_name"
-                  rules={[{ required: true, message: "กรุณากรอกชื่อ !" }]}
-                >
+                <Form.Item label="ชื่อจริง" name="FirstName" rules={[{ required: true, message: "กรุณากรอกชื่อ !" }]}>
                   <Input />
                 </Form.Item>
               </Col>
               <Col xs={24} sm={24} md={24} lg={24} xl={12}>
                 <Form.Item
                   label="นามสกุล"
-                  name="last_name"
+                  name="LastName"
                   rules={[{ required: true, message: "กรุณากรอกนามสกุล !" }]}
                 >
                   <Input />
-                </Form.Item>
-              </Col>
-              <Col xs={24} sm={24} md={24} lg={24} xl={12}>
-                <Form.Item
-                  label="อีเมล"
-                  name="email"
-                  rules={[
-                    { type: "email", message: "รูปแบบอีเมลไม่ถูกต้อง !" },
-                    { required: true, message: "กรุณากรอกอีเมล !" }
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
-              </Col>
-              <Col xs={24} sm={24} md={24} lg={24} xl={12}>
-                <Form.Item
-                  label="เบอร์โทรศัพท์"
-                  name="phone_number"
-                  rules={[
-                    { pattern: /^\d{10}$/, message: "รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง !" },
-                    { required: true, message: "กรุณากรอกเบอร์โทรศัพท์ !" }
-                  ]}
-                >
-                  <Input maxLength={10} onKeyPress={(e) => { if (!/[0-9]/.test(e.key)) e.preventDefault(); }} />
                 </Form.Item>
               </Col>
               <Col xs={24} sm={24} md={24} lg={24} xl={12}>
@@ -146,9 +142,34 @@ function EditUser() {
                     options={[
                       { value: "", label: "กรุณาเลือกเพศ", disabled: true },
                       { value: 1, label: "Male" },
-                      { value: 2, label: "Female" }
+                      { value: 2, label: "Female" },
                     ]}
                   />
+                </Form.Item>
+              </Col>
+
+              {/* ส่วนแก้ไขรูปโปรไฟล์ */}
+              <Col xs={24} sm={24} md={24} lg={24} xl={12}>
+                <Form.Item label="รูปประจำตัว" name="profile" valuePropName="fileList">
+                  <ImgCrop rotationSlider>
+                    <Upload
+                      fileList={fileList}
+                      onChange={onChange}
+                      onPreview={onPreview}
+                      beforeUpload={(file) => {
+                        setFileList([file]);
+                        return false;
+                      }}
+                      maxCount={1}
+                      multiple={false}
+                      listType="picture-card"
+                    >
+                      <div>
+                        <PlusOutlined />
+                        <div style={{ marginTop: 8 }}>คลิกเพื่ออัพโหลด</div>
+                      </div>
+                    </Upload>
+                  </ImgCrop>
                 </Form.Item>
               </Col>
             </Row>

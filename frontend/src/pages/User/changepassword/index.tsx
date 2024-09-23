@@ -2,7 +2,6 @@ import React from "react";
 import { Space, Button, Col, Row, Divider, Form, Input, Card, message } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { useNavigate, Link, useParams } from "react-router-dom";
-//import HeaderComponent from '../../../components/header/index';
 import { UpdatePasswordById } from "../../../services/https/index";
 
 function ChangePassword() {
@@ -20,8 +19,9 @@ function ChangePassword() {
     try {
       // ใช้ชื่อฟิลด์ที่ตรงกับที่คาดหวัง
       const payload = {
-        current_password: values.current_password, // ใช้ชื่อฟิลด์ที่คาดหวัง
-        new_password: values.new_password,         // ใช้ชื่อฟิลด์ที่คาดหวัง
+        old_password: values.current_password, // เปลี่ยนเป็น old_password
+        new_password: values.new_password,     // ใช้ชื่อฟิลด์ที่คาดหวัง
+        confirm_password: values.confirm_password, // เพิ่ม confirm_password
       };
 
       const res = await UpdatePasswordById(id, payload);
@@ -43,32 +43,21 @@ function ChangePassword() {
   return (
     <div>
       {contextHolder}
-      
       <Row style={{ height: '100vh', backgroundColor: '#FFFFFF', margin: 0 }}>
-        <Col
-          xs={24}
-          sm={24}
-          md={24}
-          lg={24}
-          xl={24}
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
+        <Col xs={24} sm={24} md={24} lg={24} xl={24} style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: '20px',
+        }}>
+          <Card className="card-profile" style={{
+            width: '100%',
+            maxWidth: 600,
+            height: 'auto',
+            border: 'none',
             padding: '20px',
-          }}
-        >
-          <Card
-            className="card-profile"
-            style={{
-              width: '100%',
-              maxWidth: 600,
-              height: 'auto',
-              border: 'none',
-              padding: '20px',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
-            }}
-          >
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+          }}>
             <h2 style={{ textAlign: 'center' }}>เปลี่ยนรหัสผ่าน</h2>
             <Divider />
             <Form
@@ -101,8 +90,7 @@ function ChangePassword() {
                   <Form.Item
                     label="ยืนยันรหัสผ่านใหม่"
                     name="confirm_password"
-                    rules={[
-                      { required: true, message: "กรุณายืนยันรหัสผ่านใหม่!" },
+                    rules={[{ required: true, message: "กรุณายืนยันรหัสผ่านใหม่!" },
                       ({ getFieldValue }) => ({
                         validator(_, value) {
                           if (!value || getFieldValue('new_password') === value) {
@@ -126,11 +114,7 @@ function ChangePassword() {
                           ยกเลิก
                         </Button>
                       </Link>
-                      <Button
-                        type="primary"
-                        htmlType="submit"
-                        icon={<PlusOutlined />}
-                      >
+                      <Button type="primary" htmlType="submit" icon={<PlusOutlined />}>
                         บันทึก
                       </Button>
                     </Space>

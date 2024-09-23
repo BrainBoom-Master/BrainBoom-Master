@@ -7,11 +7,11 @@ import (
 	"github.com/Parichatx/user-system2/controller/payment"
 	"github.com/Parichatx/user-system2/controller/task"
 	"github.com/Parichatx/user-system2/controller/course"
-	"github.com/Parichatx/user-system2/controller/course_category"
 	"github.com/Parichatx/user-system2/controller/like"
 	"github.com/Parichatx/user-system2/controller/review"
 	"github.com/Parichatx/user-system2/controller/tutor_profiles"
 	"github.com/Parichatx/user-system2/controller/users"
+	"github.com/Parichatx/user-system2/controller/login_history"
 	//"github.com/Parichatx/user-system2/middlewares"
 	"github.com/gin-gonic/gin"
 )
@@ -41,7 +41,17 @@ func main() {
 		r.GET("/users", users.GetAll)
 		r.GET("/users/:id", users.GetUserById)
 		r.DELETE("/users/:id", users.Delete)
-		r.GET("/tutor_profiles/:id", tutor_profiles.GetTutorProfileByUserID) 
+		r.PUT("/users/password/:id", users.ChangePassword)
+
+		r.POST("/tutor_profiles", tutor_profiles.CreateTutorProfile)  
+		r.GET("/tutor_profiles/:UserID", tutor_profiles.GetTutorProfileByUserID)  
+		r.PUT("/tutor_profiles/:UserID", tutor_profiles.UpdateTutorProfile)  
+		//r.DELETE("/tutor_profiles/:UserID", tutor_profiles.DeleteTutorProfile) 
+		
+		r.POST("/login-history", login_history.CreateLoginHistory)
+    	r.GET("/login-history/:id", login_history.GetLoginHistory)
+    	r.GET("/login-history/user/:user_id", login_history.ListUserLoginHistory)
+    	r.DELETE("/login-history/:id", login_history.DeleteLoginHistory)
 
 		// Course Routes By Pond
 		router.GET("/courses", course.ListCourse)
@@ -51,12 +61,11 @@ func main() {
 		router.GET("/courses/price/desc", course.GetCourseByPriceDESC)
 		router.GET("/tutor/:id", course.GetCourseByTutorID)
 		router.GET("/courses/search", course.SearchCourseByKeyword)
-		router.POST("/courses", course.CreateCourse)
-		router.PATCH("/courses/:id", course.UpdateCourse)
-		router.DELETE("/courses/delete/:id", course.DeleteCourse)
+		router.GET("/tutor/:id", course.GetCourseByCategoryID)
 
-		// Category Routes By Pond
-		router.GET("/categories", CourseCategories.ListCourse_Category)
+		router.POST("/courses", course.CreateCourse)
+		router.PUT("/courses/:id", course.UpdateCourse)
+		router.DELETE("/courses/:id", course.DeleteCourse)
 
 		//Review By Tawun
 		router.GET("/user/:id", reviews.GetUserByIdReviews) 
@@ -79,7 +88,7 @@ func main() {
 		router.GET("/course", course.ListCourse)
         router.GET("/course-count", course.CountCourses)
 
-		//Payment By Mac
+		//Payment By Max
 		r.GET("/payments/user/:userID", payment.GetPaymentByIdUser) // ตะวันใช้เรียกดู user in MyCourse 
 		router.GET("/payments", payment.ListAllPayments)
 		router.GET("/course-price/:id", payment.GetCoursePrice)
@@ -110,7 +119,7 @@ func CORSMiddleware() gin.HandlerFunc {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, PATCH, DELETE")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
 
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(204)
