@@ -10,6 +10,7 @@ import { CreateUser } from "../../../services/https";
 import { UsersInterface } from "../../../interfaces/IUser";
 import { DatePicker } from 'antd'; // Import DatePicker from antd
 import moment from 'moment'; // Import moment for date formatting
+import { Select } from 'antd';
 
 // Define the FormValues interface
 interface FormValues {
@@ -182,39 +183,45 @@ const Form = () => {
                       <div style={{ color: 'red' }}>{errors.birthday}</div>
                     )}
                   </Box>
-                  <TextField
-                    fullWidth
-                    variant="filled"
-                    select
-                    label="User Role"
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    value={values.userRole}
-                    name="userRole"
-                    error={!!touched.userRole && !!errors.userRole}
-                    helperText={touched.userRole && errors.userRole}
-                    sx={{ gridColumn: "span 4" }}
-                  >
-                    <MenuItem value="Student">Student</MenuItem>
-                    <MenuItem value="Tutor">Tutor</MenuItem>
-                    <MenuItem value="Admin">Admin</MenuItem>
-                  </TextField>
-                  <TextField
-                    fullWidth
-                    variant="filled"
-                    select
-                    label="Gender"
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    value={values.gender}
-                    name="gender"
-                    error={!!touched.gender && !!errors.gender}
-                    helperText={touched.gender && errors.gender}
-                    sx={{ gridColumn: "span 4" }}
-                  >
-                    <MenuItem value="Male">Male</MenuItem>
-                    <MenuItem value="Female">Female</MenuItem>
-                  </TextField>
+                  <Box sx={{ gridColumn: "span 4" }}>
+                    <Select
+                      placeholder="User Role"
+                      onBlur={handleBlur}
+                      onChange={(value) => {
+                        handleChange({ target: { name: "userRole", value } });
+                        handleBlur({ target: { name: "userRole" } }); // Trigger blur event
+                      }}
+                      value={values.userRole}
+                      style={{ width: '100%' }}
+                      status={touched.userRole && errors.userRole ? "error" : ""}
+                    >
+                      <Select.Option value="Student">Student</Select.Option>
+                      <Select.Option value="Tutor">Tutor</Select.Option>
+                      <Select.Option value="Admin">Admin</Select.Option>
+                    </Select>
+                    {touched.userRole && errors.userRole && (
+                      <div style={{ color: 'red' }}>{errors.userRole}</div>
+                    )}
+                  </Box>
+                  <Box sx={{ gridColumn: "span 4" }}>
+                    <Select
+                      placeholder="Gender"
+                      onBlur={handleBlur}
+                      onChange={(value) => {
+                        handleChange({ target: { name: "gender", value } });
+                        handleBlur({ target: { name: "gender" } }); // Trigger blur event
+                      }}
+                      value={values.gender}
+                      style={{ width: '100%' }}
+                      status={touched.gender && errors.gender ? "error" : ""}
+                    >
+                      <Select.Option value="Male">Male</Select.Option>
+                      <Select.Option value="Female">Female</Select.Option>
+                    </Select>
+                    {touched.gender && errors.gender && (
+                      <div style={{ color: 'red' }}>{errors.gender}</div>
+                    )}
+                  </Box>
                 </Box>
                 <Box display="flex" justifyContent="end" mt="20px">
                   <Button type="submit" color="secondary" variant="contained">
