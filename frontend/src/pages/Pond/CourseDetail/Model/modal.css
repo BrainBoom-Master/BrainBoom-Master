@@ -67,7 +67,6 @@
     display: flex;
     height: 300px;
     flex-direction: column;
-    overflow-y: auto; 
 }
 
 .review-container {
@@ -90,7 +89,7 @@
 .date-review {
     font-size: 12px;
     color: #777;
-    margin-left: 20px;
+    margin-left: 10px;
 }
 
 .star-color-rating{
@@ -104,9 +103,4 @@
 .highlighted-text {
     font-weight: bold;
     font-size: 20px; 
-  }
-
-  .example-reviews{
-    height: 180px;
-    overflow-y: auto; 
   }

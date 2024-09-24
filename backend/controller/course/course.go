@@ -2,7 +2,7 @@ package course
 
 import (
 	"net/http"
-
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/Parichatx/user-system2/config"
 	"github.com/Parichatx/user-system2/entity"
@@ -40,7 +40,6 @@ func GetCourse(c *gin.Context) {
 	c.JSON(http.StatusOK, course)
 }
 
-// POST /courses - Create a new course
 func CreateCourse(c *gin.Context) {
 	var course entity.Courses
 
@@ -55,8 +54,28 @@ func CreateCourse(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Validation failed"})
 		return
 	}
-
+	
 	db := config.DB()
+
+	// Verify TutorProfileID
+	var tutor entity.TutorProfiles
+	if err := db.First(&tutor, course.TutorProfileID).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid TutorProfileID", "providedID": course.TutorProfileID})
+		return
+	}
+
+	// Verify CourseCategoryID
+	var category entity.CourseCategories
+	if err := db.First(&category, course.CourseCategoryID).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid CourseCategoryID", "providedID": course.CourseCategoryID})
+		return
+	}
+
+	// Additional validation
+	if course.Price <= 0 || course.Duration <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Price and Duration must be greater than 0"})
+		return
+	}
 
 	// Create a new course
 	co := entity.Courses{
@@ -66,6 +85,8 @@ func CreateCourse(c *gin.Context) {
 		TeachingPlatform: course.TeachingPlatform,
 		Description:      course.Description,
 		Duration:         course.Duration,
+		TutorProfileID:   course.TutorProfileID,
+		CourseCategoryID: course.CourseCategoryID,
 	}
 
 	// Save course to the database
@@ -77,76 +98,50 @@ func CreateCourse(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"message": "Course created successfully", "data": co})
 }
 
+
+
+
 // PUT /courses/:id - Update an existing course by ID
 func UpdateCourse(c *gin.Context) {
 	var course entity.Courses
-	id := c.Param("id")
+
+	CourseID := c.Param("id")
 
 	db := config.DB()
-
-	// Retrieve the existing course
-	if err := db.First(&course, id).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Course not found"})
-			return
-		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	result := db.First(&course, CourseID)
+	if result.Error != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "id not found"})
 		return
 	}
 
-	// Bind updated data to the existing course object
 	if err := c.ShouldBindJSON(&course); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad request, unable to map payload"})
 		return
 	}
 
-	// Validate the updated data
-	if err := validate.Struct(course); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Validation failed"})
+	result = db.Save(&course)
+	if result.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad request"})
 		return
 	}
 
-	// Save the updated course
-	if err := db.Save(&course).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "Course updated successfully", "data": course})
+	c.JSON(http.StatusOK, gin.H{"message": "Updated successful"})
 }
 
 // DELETE /courses/:id - Delete a course
 func DeleteCourse(c *gin.Context) {
-	var course entity.Courses
 	id := c.Param("id")
-
 	db := config.DB()
-
-	err := db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.First(&course, id).Error; err != nil {
-			if err == gorm.ErrRecordNotFound {
-				c.JSON(http.StatusNotFound, gin.H{"error": "Course not found"})
-				return err
-			}
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return err
-		}
-
-		if err := tx.Delete(&course).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return err
-		}
-
-		return nil
-	})
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete course"})
+	if tx := db.Exec("UPDATE courses SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?", id); tx.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("failed to update id %s: %v", id, tx.Error)})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Course deleted successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "Deleted successfully"})
 }
+
+
+
 
 // GET /courses/category/:id - Retrieve courses by category ID
 func GetCourseByCategoryID(c *gin.Context) {
@@ -257,6 +252,57 @@ func CountCourses(c *gin.Context) {
 	})
 }
 
+func SearchCourseByKeyword(c *gin.Context) {
+    keyword := c.Query("keyword")
 
+    var courses []entity.Courses
+    db := config.DB()
+
+    results := db.Where("title LIKE ?", "%"+keyword+"%").Find(&courses)
+
+    if results.Error != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": results.Error.Error()})
+        return
+    }
+
+    if len(courses) == 0 {
+        c.JSON(http.StatusNoContent, gin.H{"message": "No course found"})
+        return
+    }
+
+    c.JSON(http.StatusOK, courses)
+}
+
+func GetCourseByPriceDESC(c *gin.Context) {
+	var courses []entity.Courses
+
+	db := config.DB()
+	if err := db.Order("price desc").Find(&courses).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Course not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, courses)
+}
+
+func GetCourseByPriceASC(c *gin.Context) {
+	var courses []entity.Courses
+
+	db := config.DB()
+	if err := db.Order("price asc").Find(&courses).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Course not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, courses)
+}
 
 // POST /payment

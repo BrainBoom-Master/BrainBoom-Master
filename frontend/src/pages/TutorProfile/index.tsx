@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, Col, Row, message, Button } from 'antd';
 import { useNavigate, Outlet } from 'react-router-dom';
 import HeaderComponent from '../../components/headertutor/index';
 import studentpic from '../../assets/tutorpic.png';
-import { LockOutlined, EditOutlined } from '@ant-design/icons';
+import { LockOutlined, EditOutlined , HistoryOutlined} from '@ant-design/icons';
 import { GetUserById as getUserByIdFromService } from "../../services/https/index";
 
 function TutorProfile() {
@@ -92,16 +92,22 @@ function TutorProfile() {
               }}
             >
               <Button
-                style={{ width: 'calc(50% - 10px)' }}
+                style={{ width: 'calc(33% - 10px)' }}
                 onClick={() => navigate(`/users/edit/${id}`)} 
               >
                 <EditOutlined /> แก้ไขข้อมูลผู้ใช้
               </Button>
               <Button
-                style={{ width: 'calc(50% - 10px)' }}
+                style={{ width: 'calc(33% - 10px)' }}
                 onClick={() => navigate(`/users/password/${id}`)} 
               >
                 <LockOutlined /> เปลี่ยนรหัสผ่าน
+              </Button>
+              <Button
+                style={{ width: 'calc(33% - 10px)' }} 
+                onClick={() => navigate(`/users/loginhistory/${id}`)} 
+              >
+                <HistoryOutlined /> ประวัติการเข้าสู่ระบบ
               </Button>
             </div>
             {/* เพิ่ม Outlet ตรงนี้เพื่อ render children routes */}

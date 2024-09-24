@@ -35,7 +35,7 @@ func CreateLoginHistory(c *gin.Context) {
 
 // GetLoginHistory ดึงข้อมูลประวัติการเข้าสู่ระบบตาม ID
 func GetLoginHistory(c *gin.Context) {
-    ID := c.Param("id")
+    ID := c.Param("UserID")
     var loginHistory entity.LoginHistories
 
     db := config.DB()
@@ -48,12 +48,12 @@ func GetLoginHistory(c *gin.Context) {
 }
 
 // ListUserLoginHistory ดึงข้อมูลประวัติการเข้าสู่ระบบของผู้ใช้
-func GetLoginHistoryByUserId(c *gin.Context) {
-    userID := c.Param("id")
+func ListUserLoginHistory(c *gin.Context) {
+    UserID := c.Param("UserID")
     var loginHistories []entity.LoginHistories
 
     db := config.DB()
-    if err := db.Where("user_id = ?", userID).Find(&loginHistories).Error; err != nil {
+    if err := db.Where("user_id = ?", UserID).Find(&loginHistories).Error; err != nil {
         c.JSON(http.StatusNotFound, gin.H{"error": "No login history found for user ID: " + err.Error()})
         return
     }

@@ -7,16 +7,15 @@ import {
   Row,
   Col,
   ConfigProvider,
-  Spin,
-  Alert,
 } from "antd";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import HeaderComponent from "../../components/header";
 import { CreditCardOutlined } from "@ant-design/icons";
 import { createStyles } from "antd-style";
 import PromptPayIcon from "../../components/Max/PromptPayIcon";
 import PromptPayQRCode from "../../components/Max/PromptPayQRCode";
-import { GetPriceById, GetTitleById } from "../../services/https";
+//import { GetPriceById, GetTitleById } from "../../services/https";
+import { useLocation } from "react-router-dom";
 
 const useStyle = createStyles(({ prefixCls, css }) => ({
   linearGradientButton: css`
@@ -51,62 +50,19 @@ const useStyle = createStyles(({ prefixCls, css }) => ({
     `,
 }));
 
-const { Header, Content } = Layout;
+const { Content } = Layout;
 
 function Payment() {
   const { styles } = useStyle();
 
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
-  const [courseTitle, setCourseTitle] = useState<string | null>(null);
-  const [coursePrice, setCoursePrice] = useState<number | undefined>(undefined);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
 
   const handleMethodChange = (method: string) => {
     setPaymentMethod(method);
   };
 
-  useEffect(() => {
-    async function fetchCourseData() {
-      try {
-        const courseId = 1;
-
-        const titleResponse = await GetTitleById(courseId);
-        if (titleResponse) {
-          setCourseTitle(titleResponse.title);
-        } else {
-          setError("Failed to fetch course title");
-        }
-
-        const priceResponse = await GetPriceById(courseId);
-        if (priceResponse) {
-          setCoursePrice(priceResponse.price);
-        } else {
-          setError("Failed to fetch course price");
-        }
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (error) {
-        setError("An error occurred while fetching course data");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchCourseData();
-  }, []);
-
-  if (loading)
-    return (
-      <div style={{ textAlign: "center", padding: "50px" }}>
-        <Spin size="large" />
-      </div>
-    );
-  if (error)
-    return (
-      <div style={{ textAlign: "center", padding: "50px" }}>
-        <Alert message={error} type="error" />
-      </div>
-    );
+  const location = useLocation();
+  const course = location.state?.course;
 
   return (
     <ConfigProvider
@@ -131,9 +87,9 @@ function Payment() {
             <Col span={14}>
               <Card
                 type="inner"
-                title="Checkout"
+                title={<span style={{ fontSize: "24px", fontWeight: "bold"}}>Checkout</span>}
                 bordered={true}
-                style={{ textAlign: "start",marginTop:"100px" }} // เพิ่ม margin 
+                style={{ textAlign: "start",marginTop:"100px" }}
               >
                 <h2>Payment method</h2>
                 <div
@@ -204,7 +160,7 @@ function Payment() {
                     <h3>Generate PromptPay QR Code</h3>
                     <PromptPayQRCode
                       mobileNumber="0631456442"
-                      amount={coursePrice}
+                      amount={course.Price}
                     />
                   </div>
                 )}
@@ -216,17 +172,18 @@ function Payment() {
                     justifyContent: "space-between",
                     alignItems: "center",
                   }}
+                  styles={{body:{width:"100%"}}}
                 >
                   <div
                     style={{
                       display: "flex",
                       height: "100%",
-                      width: "635px",
+                      width: "100%",
                       flexDirection: "row",
                     }}
                   >
                     <span style={{ flexGrow: 1 }}>
-                      {courseTitle || "Loading..."}
+                      {course.Title || "Loading..."}
                     </span>
                     <span
                       style={{
@@ -234,8 +191,8 @@ function Payment() {
                         justifyContent: "flex-end",
                       }}
                     >
-                      {coursePrice !== undefined
-                        ? `THB ${coursePrice.toLocaleString()}`
+                      {course.Price !== undefined
+                        ? `THB ${course.Price.toLocaleString()}`
                         : "Loading..."}
                     </span>
                   </div>
@@ -246,7 +203,7 @@ function Payment() {
             <Col span={10}>
               <Card
                 type="inner"
-                title="Summary"
+                title={<span style={{ fontSize: "24px", fontWeight: "bold"}}>Summary</span>}
                 bordered={true}
                 style={{ textAlign: "start",marginTop:"100px" }} // เพิ่ม margin
               >
@@ -259,8 +216,8 @@ function Payment() {
                 >
                   <span>Original Price:</span>
                   <span>
-                    {coursePrice !== undefined
-                      ? `THB ${coursePrice.toLocaleString()}`
+                    {course.Price !== undefined
+                      ? `THB ${course.Price.toLocaleString()}`
                       : "Loading..."}
                   </span>
                 </div>
@@ -276,8 +233,8 @@ function Payment() {
                 >
                   <span>Total:</span>
                   <span>
-                    {coursePrice !== undefined
-                      ? `THB ${coursePrice.toLocaleString()}`
+                    {course.Price !== undefined
+                      ? `THB ${course.Price.toLocaleString()}`
                       : "Loading..."}
                   </span>
                 </div>

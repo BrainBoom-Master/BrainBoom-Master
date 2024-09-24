@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Col, Row, message, Button } from 'antd';
-import { useNavigate, Outlet } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import HeaderComponent from '../../../components/headertutor/index';
 import studentpic from '../../../assets/tutorpic.png';
 import { EditOutlined } from '@ant-design/icons';
@@ -101,7 +101,6 @@ function MyProfile() {
                 <EditOutlined /> แก้ไขข้อมูลโปรไฟล์
               </Button>
             </div>
-            <Outlet />
           </Card>
         </Col>
       </Row>
