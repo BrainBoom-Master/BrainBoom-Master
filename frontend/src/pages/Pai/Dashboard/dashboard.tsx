@@ -56,7 +56,7 @@ const Dashboard: React.FC = () => {
       setLoading(true);
       await fetchData(GetTotalCourse, setTotalCourses, "total_courses");
       await fetchData(GetTotalTutor, setTotalTutors, "count");
-      await fetchData(GetTotalStudent, setTotalStudents, "total_students");
+      await fetchData(GetTotalStudent, setTotalStudents, "count");
       await fetchData(GetTotalPaid, setTotalPaid, "total_paid");
 
       // Fetch recent transactions

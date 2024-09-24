@@ -664,7 +664,7 @@ async function GetTotalStudent() {
       if (res.status === 200) {
         return res.json(); // คืนค่าข้อมูล JSON ถ้าสถานะเป็น 200
       } else {
-        return false; // คืนค่า false ถ้าเกิดข้อผิดพลาด
+        return 0; // คืนค่า false ถ้าเกิดข้อผิดพลาด
       }
     });
 
@@ -725,18 +725,27 @@ async function GetDataGraph() {
   return res;
 }
 
-
+//--Update--
 async function CreateUser(data: UsersInterface) {
-  return await axios
-    .post(`${apiUrl}/create-user`, data, {
+  try {
+    const response = await axios.post(`${apiUrl}/create-user`, data, {
       headers: {
         "Content-Type": "application/json",
         Authorization: getAuthHeader(), // ส่ง Authorization Header ในคำขอ
       },
-    })
-    .then((res) => res)
-    .catch((e) => e.response);
+    });
+    return response; // Successfully returned response
+  } catch (error) {
+    // Handle errors here
+    if (axios.isAxiosError(error)) {
+      // Customize error message as needed
+      throw new Error(error.response?.data.error || "An unknown error occurred");
+    } else {
+      throw new Error("An unexpected error occurred");
+    }
+  }
 }
+
 
 
 // Payment By Max ตะวันใช้ดึงข้อมูล user มารีวิว in MyCourse

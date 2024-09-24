@@ -168,7 +168,7 @@ func GetUserForTutor(c *gin.Context) {
 	count := len(users)                                          // นับจำนวนผู้ใช้
 	c.JSON(http.StatusOK, gin.H{"count": count, "users": users}) // คืนค่าจำนวนและข้อมูลผู้ใช้
 }
-
+// --Update--
 func GetUserForStudent(c *gin.Context) {
 	var users []entity.Users
 	db := config.DB()
@@ -183,7 +183,6 @@ func GetUserForStudent(c *gin.Context) {
 	count := len(users) // นับจำนวนผู้ใช้
 	c.JSON(http.StatusOK, gin.H{
 		"count": count,    // คืนค่าจำนวนผู้ใช้
-		"users": users,    // คืนค่าข้อมูลผู้ใช้
 	})
 }
 
