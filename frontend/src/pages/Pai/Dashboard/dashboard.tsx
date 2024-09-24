@@ -1,4 +1,4 @@
-import { Box, Button, IconButton, Typography, useTheme } from "@mui/material";
+import { Box, IconButton, Typography, useTheme } from "@mui/material";
 import { tokens } from "../../../theme";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import EmailIcon from "@mui/icons-material/Email";
@@ -129,7 +129,7 @@ const Dashboard: React.FC = () => {
             ) : (
               <StatBox
                 title={totalCourses ? totalCourses.toString() : "N/A"}
-                subtitle="Courses Obtained"
+                subtitle="Courses"
                 progress={0.0}
                 increase="+0%"
                 icon={<PointOfSaleIcon sx={{ color: colors.greenAccent[600], fontSize: "26px" }} />}

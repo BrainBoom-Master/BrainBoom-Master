@@ -211,14 +211,29 @@ func CreateUser(c *gin.Context) {
     }
     user.Password = hashedPassword // ตั้งรหัสผ่านเป็นรหัสผ่านที่เข้ารหัสแล้ว
 
-    // สร้างผู้ใช้ในฐานข้อมูล
-    if err := db.Create(&user).Error; err != nil {
+    // สร้างข้อมูลผู้ใช้ใหม่
+    newUser := entity.Users{
+        Username:   user.Username,
+        Password:   user.Password, // รหัสผ่านที่เข้ารหัสแล้ว
+        Email:      user.Email,
+        FirstName:  user.FirstName,
+        LastName:   user.LastName,
+        Birthday:   user.Birthday, // ตรวจสอบว่า Birthday เป็นรูปแบบที่ถูกต้อง
+        Profile:    user.Profile,
+        UserRoleID: user.UserRoleID,
+        GenderID:   user.GenderID,
+    }
+
+    // บันทึกข้อมูลผู้ใช้ลงในฐานข้อมูล
+    if err := db.Create(&newUser).Error; err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": "ไม่สามารถสร้างผู้ใช้ได้"})
         return
     }
 
-    c.JSON(http.StatusOK, gin.H{"message": "สร้างผู้ใช้สำเร็จ", "user": user})
+    // ส่งข้อความสำเร็จและข้อมูลผู้ใช้กลับไป (ไม่รวมรหัสผ่าน)
+    c.JSON(http.StatusCreated, gin.H{"message": "สร้างผู้ใช้สำเร็จ", "user": newUser})
 }
+
 
 
 

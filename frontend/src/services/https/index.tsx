@@ -5,6 +5,7 @@ import { CourseInterface } from "../../interfaces/ICourse";
 import { ReviewInterface } from "../../interfaces/IReview";
 import { PaymentsInterface } from "../../interfaces/IPayment";
 import { Tutor as TutorInterface } from "../../interfaces/Tutor";
+import { ErrorMessage } from "formik";
 
 
 const apiUrl = "http://localhost:8000";
@@ -726,22 +727,25 @@ async function GetDataGraph() {
 }
 
 //--Update--
-async function CreateUser(data: UsersInterface) {
+async function CreateUser(userData: UsersInterface) {
   try {
-    const response = await axios.post(`${apiUrl}/create-user`, data, {
+    const response = await axios.post(`${apiUrl}/signup`, userData, {
       headers: {
         "Content-Type": "application/json",
-        Authorization: getAuthHeader(), // ส่ง Authorization Header ในคำขอ
+        Authorization: getAuthHeader(), // ใส่ Header หากมี token
       },
     });
-    return response; // Successfully returned response
+
+    return { success: true, data: response.data }; // ส่งผลลัพธ์กลับ
   } catch (error) {
-    // Handle errors here
+    console.error("Error creating user:", error);
+
+    // แสดงข้อมูลข้อผิดพลาดเพิ่มเติม
     if (axios.isAxiosError(error)) {
-      // Customize error message as needed
-      throw new Error(error.response?.data.error || "An unknown error occurred");
+      console.error("Axios error details:", error.response?.data);
+      return { success: false, message: error.response?.data?.message || "เกิดข้อผิดพลาดในการสร้างผู้ใช้" };
     } else {
-      throw new Error("An unexpected error occurred");
+      return { success: false, message: "เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์" }; // ข้อความทั่วไป
     }
   }
 }

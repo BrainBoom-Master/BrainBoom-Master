@@ -1,267 +1,212 @@
-import { Row, Col, Button, Input, Select, DatePicker } from 'antd';
 import { Formik, FormikHelpers } from 'formik';
 import * as yup from 'yup';
-import Header from "../../../components/Pai/Header";
 import { useState } from "react";
-import HeaderandSidebar from "../../Pai/ADD/Header";
+import { useNavigate } from "react-router-dom";
+import { Button, Card, Form, Input, message, Row, Col, DatePicker, Select } from "antd";
 import Sidebar from "../../Pai/ADD/Sidebar";
-import "../Dashboard/apptest.css";
 import { CreateUser } from "../../../services/https";
-import moment from 'moment';
+import { UsersInterface } from "../../../interfaces/IUser";
+import "../Dashboard/apptest.css";
 
-// Define the FormValues interface
-interface FormValues {
-  username: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  birthday: moment.Moment | null;
-  userRole: string;
-  gender: string;
-}
-
-const roleMapping: { [key: string]: number } = {
-  Student: 3,
-  Tutor: 2,
-  Admin: 1,
-};
-
-const genderMapping: { [key: string]: number } = {
-  Male: 1,
-  Female: 2,
-};
-
-const Form = () => {
+const FormCreate = () => {
+  const navigate = useNavigate();
+  const [messageApi, contextHolder] = message.useMessage();
   const [openSidebarToggle, setOpenSidebarToggle] = useState<boolean>(false);
-  const [responseMessage, setResponseMessage] = useState<string>("");
 
-  const OpenSidebar = (): void => {
+  const OpenSidebar = () => {
     setOpenSidebarToggle(!openSidebarToggle);
   };
 
-  const handleFormSubmit = async (
-    values: FormValues,
-    actions: FormikHelpers<FormValues>
-  ) => {
-    if (values.birthday) {
-      localStorage.setItem("birthday", values.birthday.toISOString());
-    }
-
-    try {
-      const response = await CreateUser({
-        Username: values.username,
-        Password: values.password,
-        Email: values.email,
-        FirstName: values.firstName,
-        LastName: values.lastName,
-        BirthDay: values.birthday ? values.birthday.format("YYYY-MM-DD") : "",
-        UserRoleID: roleMapping[values.userRole],
-        GenderID: genderMapping[values.gender],
-        Profile: "",  // Set Profile as null
+  const onFinish = async (values: UsersInterface) => {
+    let res = await CreateUser(values);
+    if (res.success) {
+      messageApi.open({
+        type: "success",
+        content: res.message || "User created successfully",
       });
-
-      if (response?.data?.success) {
-        setResponseMessage("User created successfully!");
-        actions.resetForm();
-      } else {
-        setResponseMessage(response?.data?.message || "Failed to create user.");
-      }
-    } catch (error) {
-      setResponseMessage("An error occurred while creating the user.");
-    } finally {
-      actions.setSubmitting(false);
+      setTimeout(() => {
+        navigate("/");
+      }, 2000);
+    } else {
+      messageApi.open({
+        type: "error",
+        content: res.message || "An error occurred while creating the user",
+      });
     }
   };
 
   return (
-    <div className="grid-container-pai">
-      <HeaderandSidebar OpenSidebar={OpenSidebar} />
-      <Sidebar openSidebarToggle={openSidebarToggle} OpenSidebar={OpenSidebar} />
+    <>
+      {contextHolder}
+      <Row style={{ width: "100vw", height: "100vh", backgroundColor: "#FFFF" }}>
+        <Col>
+          <Sidebar openSidebarToggle={openSidebarToggle} OpenSidebar={OpenSidebar} />
+        </Col>
 
-      <Row justify="end" style={{ minHeight: "80vh", backgroundColor: "#f0f0f0", marginTop: "10%" }}>
-        <Col span={16}>
-          <Header title="CREATE USER" subtitle="Create a New User Profile" />
-          
-          {responseMessage && (
-            <Row>
-              <Col span={24} style={{ marginBottom: "20px" }}>
-                {responseMessage}
+        <Col
+          xs={24}
+          sm={20}
+          md={20}
+          lg={20}
+          xl={20}
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            paddingRight: "50px",
+          }}
+        >
+          <Card
+            className="card-login"
+            style={{ width: "100%", maxWidth: 1300, border: "none", padding: "20px" }}
+          >
+            <Row align={"middle"} justify={"center"}>
+              <Col xs={24} sm={20}>
+                <h1 style={{ textAlign: "left", color: "#3D8C3C", fontSize: "36px", fontWeight: "bold" }}>CREATE USER</h1>
+
+                <Form
+                  name="basic"
+                  layout="vertical"
+                  onFinish={onFinish}
+                  autoComplete="off"
+                >
+                  <Row gutter={[16, 0]} align={"middle"}>
+                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                      <Form.Item
+                        label="ชื่อ"
+                        name="first_name"
+                        rules={[{ required: true, message: "กรุณากรอกชื่อ !" }]}
+                      >
+                        <Input />
+                      </Form.Item>
+                    </Col>
+
+                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                      <Form.Item
+                        label="นามสกุล"
+                        name="last_name"
+                        rules={[{ required: true, message: "กรุณากรอกนามสกุล !" }]}
+                      >
+                        <Input />
+                      </Form.Item>
+                    </Col>
+
+                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                      <Form.Item
+                        label="อีเมล"
+                        name="email"
+                        rules={[
+                          { type: "email", message: "รูปแบบอีเมลไม่ถูกต้อง !" },
+                          { required: true, message: "กรุณากรอกอีเมล !" },
+                        ]}
+                      >
+                        <Input />
+                      </Form.Item>
+                    </Col>
+
+                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                      <Form.Item
+                        label="วัน/เดือน/ปี เกิด"
+                        name="birthday"
+                        rules={[{ required: true, message: "กรุณาเลือกวัน/เดือน/ปี เกิด !" }]}
+                      >
+                        <DatePicker style={{ width: "100%" }} />
+                      </Form.Item>
+                    </Col>
+
+                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                      <Form.Item
+                        label="Username"
+                        name="username"
+                        rules={[{ required: true, message: "กรุณากรอก Username !" }]}
+                      >
+                        <Input />
+                      </Form.Item>
+                    </Col>
+
+                    <Col xs={24} sm={24} md={24} lg={12} xl={12}>
+                      <Form.Item
+                        label="Password"
+                        name="password"
+                        rules={[{ required: true, message: "กรุณากรอกรหัสผ่าน !" }]}
+                      >
+                        <Input.Password />
+                      </Form.Item>
+                    </Col>
+
+                    <Col xs={24} sm={24} md={24} lg={12} xl={12}>
+                      <Form.Item
+                        label="Confirm Password"
+                        name="confirmPassword"
+                        rules={[
+                          { required: true, message: "กรุณากรอกรหัสผ่าน !" },
+                          ({ getFieldValue }) => ({
+                            validator(_, value) {
+                              if (!value || getFieldValue('password') === value) {
+                                return Promise.resolve();
+                              }
+                              return Promise.reject(new Error('รหัสผ่านไม่ตรงกัน!'));
+                            },
+                          }),
+                        ]}
+                      >
+                        <Input.Password />
+                      </Form.Item>
+                    </Col>
+
+                    <Col xs={24} sm={24} md={24} lg={12} xl={12}>
+                      <Form.Item
+                        label="เพศ"
+                        name="gender_id"
+                        rules={[{ required: true, message: "กรุณาเลือกเพศ !" }]}
+                      >
+                        <Select
+                          defaultValue=""
+                          style={{ width: "100%" }}
+                          options={[
+                            { value: "", label: "กรุณาเลือกเพศ", disabled: true },
+                            { value: 1, label: "Male" },
+                            { value: 2, label: "Female" },
+                          ]}
+                        />
+                      </Form.Item>
+                    </Col>
+
+                    <Col xs={24} sm={24} md={24} lg={12} xl={12}>
+                      <Form.Item
+                        label="Role"
+                        name="user_role_id"
+                        rules={[{ required: true, message: "กรุณาเลือกบทบาท !" }]}
+                      >
+                        <Select
+                          defaultValue=""
+                          style={{ width: "100%" }}
+                          options={[
+                            { value: "", label: "กรุณาเลือกบทบาท", disabled: true },
+                            { value: 3, label: "Student" },
+                            { value: 2, label: "Tutor" },
+                            { value: 1, label: "Admin" },
+                          ]}
+                        />
+                      </Form.Item>
+                    </Col>
+
+                    <Col span={24}>
+                      <Form.Item>
+                        <Button type="primary" htmlType="submit" className="login-from-button" style={{ width: "100%" }}>
+                          สมัครสมาชิก
+                        </Button>
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                </Form>
               </Col>
             </Row>
-          )}
-
-          <Formik
-            onSubmit={handleFormSubmit}
-            initialValues={initialValues}
-            validationSchema={checkoutSchema}
-          >
-            {({
-              values,
-              errors,
-              touched,
-              handleBlur,
-              handleChange,
-              handleSubmit,
-            }) => (
-              <form onSubmit={handleSubmit} style={{ transform: 'scale(1.2)', maxWidth: '100%' }}>
-                
-                <Row gutter={[16, 24]} justify="end">
-                  
-                  <Col span={12}>
-                    <Input
-                      placeholder="Username"
-                      onBlur={handleBlur}
-                      onChange={handleChange}
-                      value={values.username}
-                      name="username"
-                      status={touched.username && errors.username ? "error" : ""} />
-                    {touched.username && errors.username && (
-                      <div style={{ color: 'red' }}>{errors.username}</div>
-                    )}
-                  </Col>
-
-                  <Col span={12}>
-                    <Input.Password
-                      placeholder="Password"
-                      onBlur={handleBlur}
-                      onChange={handleChange}
-                      value={values.password}
-                      name="password"
-                      status={touched.password && errors.password ? "error" : ""} />
-                    {touched.password && errors.password && (
-                      <div style={{ color: 'red' }}>{errors.password}</div>
-                    )}
-                  </Col>
-                  
-                  <Col span={12}>
-                    <Input
-                      placeholder="First Name"
-                      onBlur={handleBlur}
-                      onChange={handleChange}
-                      value={values.firstName}
-                      name="firstName"
-                      status={touched.firstName && errors.firstName ? "error" : ""} />
-                    {touched.firstName && errors.firstName && (
-                      <div style={{ color: 'red' }}>{errors.firstName}</div>
-                    )}
-                  </Col>
-
-                  <Col span={12}>
-                    <Input
-                      placeholder="Last Name"
-                      onBlur={handleBlur}
-                      onChange={handleChange}
-                      value={values.lastName}
-                      name="lastName"
-                      status={touched.lastName && errors.lastName ? "error" : ""} />
-                    {touched.lastName && errors.lastName && (
-                      <div style={{ color: 'red' }}>{errors.lastName}</div>
-                    )}
-                  </Col>
-                  
-                  <Col span={24}>
-                    <Input
-                      placeholder="Email"
-                      type="email"
-                      onBlur={handleBlur}
-                      onChange={handleChange}
-                      value={values.email}
-                      name="email"
-                      status={touched.email && errors.email ? "error" : ""} />
-                    {touched.email && errors.email && (
-                      <div style={{ color: 'red' }}>{errors.email}</div>
-                    )}
-                  </Col>
-                  
-                  <Col span={24}>
-                    <DatePicker
-                      placeholder="Birthday"
-                      style={{ width: '100%' }}
-                      value={values.birthday}
-                      onChange={(date) => handleChange({ target: { name: "birthday", value: date } })} />
-                    {touched.birthday && errors.birthday && (
-                      <div style={{ color: 'red' }}>{errors.birthday}</div>
-                    )}
-                  </Col>
-                  
-                  <Col span={12}>
-                    <Select
-                      placeholder="User Role"
-                      onBlur={handleBlur}
-                      onChange={(value) => {
-                        handleChange({ target: { name: "userRole", value } });
-                        handleBlur({ target: { name: "userRole" } });
-                      }}
-                      value={values.userRole}
-                      style={{ width: '100%' }}
-                      status={touched.userRole && errors.userRole ? "error" : ""} >
-                      <Select.Option value="Student">Student</Select.Option>
-                      <Select.Option value="Tutor">Tutor</Select.Option>
-                      <Select.Option value="Admin">Admin</Select.Option>
-                    </Select>
-                    {touched.userRole && errors.userRole && (
-                      <div style={{ color: 'red' }}>{errors.userRole}</div>
-                    )}
-                  </Col>
-
-                  <Col span={12}>
-                    <Select
-                      placeholder="Gender"
-                      onBlur={handleBlur}
-                      onChange={(value) => {
-                        handleChange({ target: { name: "gender", value } });
-                        handleBlur({ target: { name: "gender" } });
-                      }}
-                      value={values.gender}
-                      style={{ width: '100%' }}
-                      status={touched.gender && errors.gender ? "error" : ""} >
-                      <Select.Option value="Male">Male</Select.Option>
-                      <Select.Option value="Female">Female</Select.Option>
-                    </Select>
-                    {touched.gender && errors.gender && (
-                      <div style={{ color: 'red' }}>{errors.gender}</div>
-                    )}
-                  </Col>
-
-                  <Col span={24} style={{ textAlign: 'center', marginTop: '30px' }}>
-                    <Button type="primary" htmlType="submit" style={{ padding: '10px 20px' }}>
-                      Create New User
-                    </Button>
-                  </Col>
-                </Row>
-              </form>
-            )}
-          </Formik>
+          </Card>
         </Col>
       </Row>
-    </div>
+    </>
   );
 };
 
-
-// Validation schema
-const checkoutSchema = yup.object().shape({
-  username: yup.string().required("Username is required"),
-  password: yup.string().required("Password is required"),
-  firstName: yup.string().required("First Name is required"),
-  lastName: yup.string().required("Last Name is required"),
-  email: yup.string().email("Invalid email").required("Email is required"),
-  birthday: yup.date().nullable().required("Birthday is required"),
-  userRole: yup.string().required("User Role is required"),
-  gender: yup.string().required("Gender is required"),
-});
-
-// Initial values
-const initialValues: FormValues = {
-  username: "",
-  password: "",
-  firstName: "",
-  lastName: "",
-  email: "",
-  birthday: null,
-  userRole: "",
-  gender: "",
-};
-
-export default Form;
+export default FormCreate;
