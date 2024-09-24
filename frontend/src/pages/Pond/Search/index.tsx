@@ -282,7 +282,8 @@ function SearchCourse() {
                       }}
                     >
                       <span className="currency">฿</span>
-                      {Number(course.Price?.toFixed(2)).toLocaleString()}
+                      {Number(course.Price?.toFixed(2)).toLocaleString(undefined, 
+                            { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </div>
                   </Card>
                 </div>

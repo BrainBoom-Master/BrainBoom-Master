@@ -295,7 +295,8 @@ function Tutor() {
                                 : "Rating: 0 (0)"}
                             </Text>
                           </Space>
-                          <Text strong style={{ color: '#ff4500' }}>฿{Number(course.Price?.toFixed(2)).toLocaleString()}</Text>
+                          <Text strong style={{ color: '#ff4500' }}>฿{Number(course.Price?.toFixed(2)).toLocaleString(undefined, 
+                            { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
                         </Space>
                       </Col>
                     </Row>
