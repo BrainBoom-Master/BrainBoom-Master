@@ -1,6 +1,5 @@
 import { Box, Button, IconButton, Typography, useTheme } from "@mui/material";
 import { tokens } from "../../../theme";
-import { mockTransactions } from "../../../data/mockData";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import EmailIcon from "@mui/icons-material/Email";
 import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
@@ -9,19 +8,15 @@ import TrafficIcon from "@mui/icons-material/Traffic";
 import Header from "../../Pai/ADD/Header";
 import HeaderandSidebar from "../../Pai/ADD/Sidebar";
 import LineChart from "../../../components/Pai/LineChart";
-import BarChart from "../../../components/Pai/BarChart";
 import StatBox from "../../../components/Pai/StatBox";
-import ProgressCircle from "../../../components/Pai/ProgressCircle";
-import { GetTotalCourse } from "../../../services/https";
+import { GetTotalCourse, GetTotalStudent, GetTotalTutor, GetTotalPaid, GetRecentTransactions } from "../../../services/https";
 import React, { useEffect, useState } from "react";
-import "./apptest.css"
+import "./apptest.css";
 
-// Define types for mock data
 interface Transaction {
-  txId: string;
-  user: string;
+  username: string;
   date: string;
-  cost: string;
+  amount: number;
 }
 
 const Dashboard: React.FC = () => {
@@ -29,40 +24,67 @@ const Dashboard: React.FC = () => {
   const colors = tokens(theme.palette.mode);
 
   const [openSidebarToggle, setOpenSidebarToggle] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [totalCourses, setTotalCourses] = useState<number>(0);
+  const [totalTutors, setTotalTutors] = useState<number>(0);
+  const [totalStudents, setTotalStudents] = useState<number>(0);
+  const [totalPaid, setTotalPaid] = useState<number>(0);
+  const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
 
   const OpenSidebar = (): void => {
     setOpenSidebarToggle(!openSidebarToggle);
   };
 
-  const [totalCourses, setTotalCourses] = useState<number>(0);
-
-  // Fetch total courses from the backend
-  useEffect(() => {
-    const fetchTotalCourses = async () => {
-      const result = await GetTotalCourse();
+  const fetchData = async (
+    apiFunc: Function,
+    setState: Function,
+    stateName: string
+  ) => {
+    try {
+      const result = await apiFunc();
       if (result) {
-        setTotalCourses(result.total_courses); // Store total courses in state
+        setState(result[stateName]);
       }
-    };
+    } catch (error) {
+      console.error(`Error fetching ${stateName}:`, error);
+      alert(`Failed to fetch ${stateName} data.`);
+    }
+  };
 
-    fetchTotalCourses();
+  useEffect(() => {
+    const fetchAllData = async () => {
+      setLoading(true);
+      await fetchData(GetTotalCourse, setTotalCourses, "total_courses");
+      await fetchData(GetTotalTutor, setTotalTutors, "count");
+      await fetchData(GetTotalStudent, setTotalStudents, "total_students");
+      await fetchData(GetTotalPaid, setTotalPaid, "total_paid");
+
+      // Fetch recent transactions
+      try {
+        const recentTransactionsData = await GetRecentTransactions();
+        setRecentTransactions(recentTransactionsData.recent_transactions);
+      } catch (error) {
+        console.error("Error fetching recent transactions:", error);
+      }
+
+      setLoading(false);
+    };
+    fetchAllData();
   }, []);
 
   return (
     <div className="grid-container">
-            <Header OpenSidebar={OpenSidebar} />
-            <HeaderandSidebar openSidebarToggle={openSidebarToggle} OpenSidebar={OpenSidebar} />
+      <Header OpenSidebar={OpenSidebar} />
+      <HeaderandSidebar openSidebarToggle={openSidebarToggle} OpenSidebar={OpenSidebar} />
       <Box
         sx={{
-          width: "85vw", // Full screen width
-          height: "100vh", // Full screen height
+          width: "85vw",
+          height: "100vh",
           padding: "10px",
           backgroundColor: colors.primary[600],
-          overflow: "auto", // Allow scroll if needed
+          overflow: "auto",
         }}
       >
-        {/* HEADER */}
-
         {/* GRID & CHARTS */}
         <Box
           display="grid"
@@ -81,17 +103,17 @@ const Dashboard: React.FC = () => {
               justifyContent: "center",
             }}
           >
-            <StatBox
-              title="12,361"
-              subtitle="Tutor"
-              progress={0.75}
-              increase="+14%"
-              icon={
-                <EmailIcon
-                  sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
-                />
-              }
-            />
+            {loading ? (
+              <Typography>Loading...</Typography>
+            ) : (
+              <StatBox
+                title={totalTutors ? totalTutors.toString() : "N/A"}
+                subtitle="Tutor"
+                progress={0.75}
+                increase="+14%"
+                icon={<EmailIcon sx={{ color: colors.greenAccent[600], fontSize: "26px" }} />}
+              />
+            )}
           </Box>
           <Box
             gridColumn="span 3"
@@ -102,17 +124,17 @@ const Dashboard: React.FC = () => {
               justifyContent: "center",
             }}
           >
-            <StatBox
-              title={totalCourses.toString()} // Display total courses
-              subtitle="Courses Obtained"
-              progress={0.0}
-              increase="+0%"
-              icon={
-                <PointOfSaleIcon
-                  sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
-                />
-              }
-            />
+            {loading ? (
+              <Typography>Loading...</Typography>
+            ) : (
+              <StatBox
+                title={totalCourses ? totalCourses.toString() : "N/A"}
+                subtitle="Courses Obtained"
+                progress={0.0}
+                increase="+0%"
+                icon={<PointOfSaleIcon sx={{ color: colors.greenAccent[600], fontSize: "26px" }} />}
+              />
+            )}
           </Box>
           <Box
             gridColumn="span 3"
@@ -123,17 +145,17 @@ const Dashboard: React.FC = () => {
               justifyContent: "center",
             }}
           >
-            <StatBox
-              title="32,441"
-              subtitle="Student"
-              progress={0.3}
-              increase="+5%"
-              icon={
-                <PersonAddIcon
-                  sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
-                />
-              }
-            />
+            {loading ? (
+              <Typography>Loading...</Typography>
+            ) : (
+              <StatBox
+                title={totalStudents ? totalStudents.toString() : "N/A"}
+                subtitle="Student"
+                progress={0.3}
+                increase="+5%"
+                icon={<PersonAddIcon sx={{ color: colors.greenAccent[600], fontSize: "26px" }} />}
+              />
+            )}
           </Box>
           <Box
             gridColumn="span 3"
@@ -144,17 +166,17 @@ const Dashboard: React.FC = () => {
               justifyContent: "center",
             }}
           >
-            <StatBox
-              title="1,325,134"
-              subtitle="Profit"
-              progress={0.8}
-              increase="+43%"
-              icon={
-                <TrafficIcon
-                  sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
-                />
-              }
-            />
+            {loading ? (
+              <Typography>Loading...</Typography>
+            ) : (
+              <StatBox
+                title={totalPaid ? `฿ ${totalPaid.toFixed(2)}` : "N/A"}
+                subtitle="Profit"
+                progress={0.8}
+                increase="+43%"
+                icon={<TrafficIcon sx={{ color: colors.greenAccent[600], fontSize: "26px" }} />}
+              />
+            )}
           </Box>
 
           {/* ROW 2 */}
@@ -173,30 +195,20 @@ const Dashboard: React.FC = () => {
               alignItems="center"
             >
               <Box>
-                <Typography
-                  variant="h5"
-                  fontWeight="600"
-                  color={colors.grey[100]}
-                >
+                <Typography variant="h5" fontWeight="600" color={colors.grey[100]}>
                   Revenue Generated
                 </Typography>
-                <Typography
-                  variant="h3"
-                  fontWeight="bold"
-                  color={colors.greenAccent[500]}
-                >
-                  $59,342.32
+                <Typography variant="h3" fontWeight="bold" color={colors.greenAccent[500]}>
+                  ฿{totalPaid ? totalPaid.toFixed(2) : "N/A"}
                 </Typography>
               </Box>
               <Box>
                 <IconButton>
-                  <DownloadOutlinedIcon
-                    sx={{ fontSize: "26px", color: colors.greenAccent[500] }}
-                  />
+                  <DownloadOutlinedIcon sx={{ fontSize: "26px", color: colors.greenAccent[500] }} />
                 </IconButton>
               </Box>
             </Box>
-            <Box height="250px" m="-20px 0 0 0">
+            <Box height="500px" m="-20px 0 0 0"> {/* เปลี่ยนความสูงที่นี่ */}
               <LineChart isDashboard={true} />
             </Box>
           </Box>
@@ -206,6 +218,7 @@ const Dashboard: React.FC = () => {
             sx={{
               backgroundColor: colors.primary[400],
               overflow: "auto",
+              height: "594px", // กำหนดความสูงที่ชัดเจน
             }}
           >
             <Box
@@ -215,98 +228,45 @@ const Dashboard: React.FC = () => {
               borderBottom={`4px solid ${colors.primary[500]}`}
               p="15px"
             >
-              <Typography
-                color={colors.grey[100]}
-                variant="h5"
-                fontWeight="600"
-              >
+              <Typography color={colors.grey[100]} variant="h5" fontWeight="600">
                 Recent Transactions
               </Typography>
             </Box>
-            {mockTransactions.map((transaction: Transaction, i: number) => (
-              <Box
-                key={`${transaction.txId}-${i}`}
-                display="flex"
-                justifyContent="space-between"
-                alignItems="center"
-                borderBottom={`4px solid ${colors.primary[500]}`}
-                p="15px"
-              >
-                <Box>
-                  <Typography
-                    color={colors.greenAccent[500]}
-                    variant="h5"
-                    fontWeight="600"
-                  >
-                    {transaction.txId}
-                  </Typography>
-                  <Typography color={colors.grey[100]}>
-                    {transaction.user}
-                  </Typography>
-                </Box>
-                <Box color={colors.grey[100]}>{transaction.date}</Box>
+            {recentTransactions.length === 0 ? (
+              <Typography color={colors.grey[100]} p="15px">
+                No transactions found.
+              </Typography>
+            ) : (
+              recentTransactions.slice(0, 8).map((transaction: Transaction, i: number) => (
                 <Box
-                  sx={{
-                    backgroundColor: colors.greenAccent[500],
-                    p: "5px 10px",
-                    borderRadius: "4px",
-                  }}
+                  key={`${transaction.username}-${i}`}
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  borderBottom={`4px solid ${colors.primary[500]}`}
+                  p="15px"
                 >
-                  ${transaction.cost}
+                  <Box>
+                    <Typography color={colors.greenAccent[500]} variant="h5" fontWeight="600">
+                      {transaction.username}
+                    </Typography>
+                  </Box>
+                  <Box color={colors.grey[100]}>{transaction.date}</Box>
+                  <Box
+                    sx={{
+                      backgroundColor: colors.greenAccent[500],
+                      p: "5px 10px",
+                      borderRadius: "4px",
+                    }}
+                  >
+                    ฿{transaction.amount.toFixed(2)}
+                  </Box>
                 </Box>
-              </Box>
-            ))}
+              ))
+            )}
           </Box>
 
           {/* ROW 3 */}
-          <Box
-            gridColumn="span 4"
-            gridRow="span 0"
-            sx={{
-              backgroundColor: colors.primary[400],
-              p: "30px",
-            }}
-          >
-            <Typography variant="h5" fontWeight="600">
-              Campaign
-            </Typography>
-            <Box
-              display="flex"
-              flexDirection="column"
-              alignItems="center"
-              mt="25px"
-            >
-              <ProgressCircle size={125} />
-              <Typography
-                variant="h5"
-                color={colors.greenAccent[500]}
-                sx={{ mt: "15px" }}
-              >
-                $48,352 revenue generated
-              </Typography>
-              <Typography>
-                Includes extra misc expenditures and costs
-              </Typography>
-            </Box>
-          </Box>
-          <Box
-            gridColumn="span 4"
-            gridRow="span 0"
-            sx={{
-              backgroundColor: colors.primary[400],
-            }}
-          >
-            <Typography
-              variant="h5"
-              fontWeight="600"
-              sx={{ padding: "30px 30px 0 30px" }}
-            >
-              Sales Quantity
-            </Typography>
-            <Box height="250px" mt="-20px">
-              <BarChart isDashboard={true} />
-            </Box>
-          </Box>
         </Box>
       </Box>
     </div>

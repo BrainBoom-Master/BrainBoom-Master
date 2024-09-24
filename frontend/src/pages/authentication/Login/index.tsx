@@ -29,8 +29,7 @@ function SignInPages() {
   
         // จัดเก็บข้อมูลลง localStorage
         // หลังจากล็อกอินสำเร็จ
-        console.log(res.data);
-        
+
         localStorage.setItem("isLogin", "true");
         localStorage.setItem("page", "dashboard");
         localStorage.setItem("token_type", res.data.token_type);

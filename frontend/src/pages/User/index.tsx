@@ -14,7 +14,7 @@ function ProfileUser() {
   const [messageApi, contextHolder] = message.useMessage();
 
   const username = localStorage.getItem('username') || 'Unknown User';
-  //const user_role_id = localStorage.getItem('user_role_id') || 'Unknown Role';
+  const user_role_id = localStorage.getItem('user_role_id') || 'Unknown Role';
 
   const fetchUserById = async (id: string) => {
     try {
@@ -119,6 +119,7 @@ function ProfileUser() {
                 <LockOutlined /> เปลี่ยนรหัสผ่าน
               </Button>
             </div>
+            {/* เพิ่ม Outlet ตรงนี้เพื่อ render children routes */}
             <Outlet />
           </Card>
         </Col>

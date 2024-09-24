@@ -35,26 +35,25 @@ function SignUpTutorPages() {
   };
 
   const onFinish = async (values: UsersInterface) => {
-    values.Profile = fileList[0].thumbUrl;
     let res = await CreateUser(values);
-    console.log(res);
-    if (res.status === 201) {
+  
+    if (res.success) {
       messageApi.open({
         type: "success",
-        content: res.data.message,
+        content: res.message || "User created successfully",
       });
-
+  
       setTimeout(() => {
         navigate("/");
       }, 2000);
     } else {
       messageApi.open({
         type: "error",
-        content: res.data.error,
+        content: res.message || "An error occurred while creating the user",
       });
     }
   };
-
+  
   return (
     <>
       {contextHolder}

@@ -6,6 +6,7 @@ import { ReviewInterface } from "../../interfaces/IReview";
 import { PaymentsInterface } from "../../interfaces/IPayment";
 import { Tutor as TutorInterface } from "../../interfaces/Tutor";
 
+
 const apiUrl = "http://localhost:8000";
 
 // Eye
@@ -93,18 +94,7 @@ async function DeleteUserById(id: string) {
     .catch((e) => e.response);
 }
 
-// สร้างผู้ใช้ใหม่
-async function CreateUser(data: UsersInterface) {
-  return await axios
-    .post(`${apiUrl}/signup`, data, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: getAuthHeader(), // ส่ง Authorization Header ในคำขอ
-      },
-    })
-    .then((res) => res)
-    .catch((e) => e.response);
-}
+
 
 // อัปเดตพาสเวิร์ด
 async function UpdatePasswordById(id: string, data: { old_password: string; new_password: string; confirm_password: string }) {
@@ -226,44 +216,6 @@ async function GetCourses() {
   return res;
 }
 
-async function GetCoursesByPriceASC() {
-  const requestOptions = {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  };
-
-  const res = await fetch(`${apiUrl}/courses/price/asc`, requestOptions).then((res) => {
-    if (res.status === 200) {
-      return res.json();
-    } else {
-      throw new Error("Response is not in JSON format");
-    }
-  });
-
-  return res;
-}
-
-async function GetCoursesByPriceDESC() {
-  const requestOptions = {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  };
-
-  const res = await fetch(`${apiUrl}/courses/price/desc`, requestOptions).then((res) => {
-    if (res.status === 200) {
-      return res.json();
-    } else {
-      throw new Error("Response is not in JSON format");
-    }
-  });
-
-  return res;
-}
-
 async function GetCourseCategories() {
   const requestOptions = {
     method: "GET",
@@ -349,26 +301,20 @@ async function GetCourseById(id: number) {
   return res;
 }
 
-async function GetCourseByCategoryID(id: number): Promise<CourseInterface[]> {
-  const requestOptions = {
-    method: "GET",
-  };
-
+async function GetCourseByCategoryID(categoryID: number) {
   try {
-    const res = await fetch(`${apiUrl}/courses/category/${id}`, requestOptions);
+    const response = await fetch(`/courses/category/${categoryID}`);
+    if (!response.ok) throw new Error("การตอบสนองของเครือข่ายไม่ถูกต้อง");
 
-    if (res.ok) {
-      const data = await res.json();
-      if (Array.isArray(data)) {
-        return data;
-      } else {
-        return [];
-      }
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+      return await response.json();
     } else {
-      return []; 
+      throw new Error("การตอบสนองไม่ใช่ JSON");
     }
-  } catch {
-    return [];
+  } catch (error) {
+    console.error("ข้อผิดพลาดในการดึงข้อมูลคอร์ส:", error);
+    return false;
   }
 }
 
@@ -431,6 +377,8 @@ async function SearchCourseByKeyword(keyword: string){
       return false;
   }
 };
+
+
 
 async function DeleteCourseByID(id: number | undefined) {
   const requestOptions = {
@@ -684,6 +632,113 @@ async function GetTotalCourse() {
   return res;
 }
 
+async function GetTotalTutor() {
+  const requestOptions = {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  };
+
+  const res = await fetch(`${apiUrl}/tutor-count`, requestOptions) // เปลี่ยนเป็น endpoint สำหรับนับ Tutor
+    .then((res) => {
+      if (res.status === 200) {
+        return res.json(); // คืนค่าข้อมูล JSON ถ้าสถานะเป็น 200
+      } else {
+        return false; // คืนค่า false ถ้าเกิดข้อผิดพลาด
+      }
+    });
+
+  return res; // คืนค่าผลลัพธ์ที่ได้
+}
+async function GetTotalStudent() {
+  const requestOptions = {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  };
+
+  const res = await fetch(`${apiUrl}/student-count`, requestOptions) // เปลี่ยนเป็น endpoint สำหรับนับ Tutor
+    .then((res) => {
+      if (res.status === 200) {
+        return res.json(); // คืนค่าข้อมูล JSON ถ้าสถานะเป็น 200
+      } else {
+        return false; // คืนค่า false ถ้าเกิดข้อผิดพลาด
+      }
+    });
+
+  return res; // คืนค่าผลลัพธ์ที่ได้
+}
+async function GetTotalPaid() {
+  const requestOptions = {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  };
+
+  const res = await fetch(`${apiUrl}/total-paid`, requestOptions).then((res) => {
+    if (res.status == 200) {
+      return res.json();
+    } else {
+      return false;
+    }
+  });
+
+  return res;
+}
+async function GetRecentTransactions() {
+  const requestOptions = {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  };
+
+  const res = await fetch(`${apiUrl}/recent-paid`, requestOptions).then((res) => {
+    if (res.status == 200) {
+      return res.json();
+    } else {
+      return false;
+    }
+  });
+
+  return res;
+}
+
+async function GetDataGraph() {
+  const requestOptions = {
+    method: "GET",
+  };
+
+  const res = await fetch(`${apiUrl}/courses-graph`, requestOptions).then(
+    (res) => {
+      if (res.status == 200) {
+        return res.json();
+      } else {
+        return false;
+      }
+    }
+  );
+
+  return res;
+}
+
+
+async function CreateUser(data: UsersInterface) {
+  return await axios
+    .post(`${apiUrl}/create-user`, data, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: getAuthHeader(), // ส่ง Authorization Header ในคำขอ
+      },
+    })
+    .then((res) => res)
+    .catch((e) => e.response);
+}
+
+
 // Payment By Max ตะวันใช้ดึงข้อมูล user มารีวิว in MyCourse
 async function GetPaymentByIdUser(userID: number): Promise<any> {
   const requestOptions = {
@@ -712,34 +767,6 @@ async function GetPaymentByIdUser(userID: number): Promise<any> {
   }
 }
 
-async function GetPaymentByIdCourse(courseID: number): Promise<PaymentsInterface[] | null | false> {
-  const requestOptions = {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  };
-
-  try {
-    const res = await fetch(`${apiUrl}/payments/courses/${courseID}`, requestOptions);
-    if (res.status === 200) {
-      const payments = await res.json();
-    
-      if (Array.isArray(payments)) {
-        return payments as PaymentsInterface[]; 
-      } else {
-        return false;
-      }
-    } else if (res.status === 404) {
-      return null;
-    } else {
-      return false;
-    }
-  } catch {
-    return false;
-  }
-}
-
 async function GetPayments() {
   const requestOptions = {
     method: "GET",
@@ -758,6 +785,8 @@ async function GetPayments() {
 
   return res;
 }
+
+
 
 async function GetPriceById(id: number | undefined) {
   const requestOptions = {
@@ -795,6 +824,7 @@ async function GetTitleById(id: number | undefined) {
   return res;
 }
 
+
 async function CreatePayment(data: PaymentsInterface) {
   const requestOptions = {
     method: "POST",
@@ -814,6 +844,8 @@ async function CreatePayment(data: PaymentsInterface) {
 }
 
 
+
+
 // Export ฟังก์ชันทั้งหมด
 export {
   //User eye
@@ -830,11 +862,9 @@ export {
   UpdateTutorById,
   GetLoginHistory,
   AddLoginHistory,
-  GetTutorProfileById,
   //Course Pond
+  GetTutorProfileById,
   GetCourses,
-  GetCoursesByPriceASC,
-  GetCoursesByPriceDESC,
   GetCourseCategories,
   CreateCourse,
   UpdateCourse,
@@ -847,9 +877,13 @@ export {
   GetTotalCourse,
   //Payment Mac
   GetPaymentByIdUser, // ตะวันใช้ get ข้อมูลลง mycourse
-  GetPaymentByIdCourse,
   GetPayments,
   GetPriceById,
   GetTitleById,
   CreatePayment,
+  GetTotalTutor,
+  GetTotalStudent,
+  GetTotalPaid,
+  GetRecentTransactions,
+  GetDataGraph
 };

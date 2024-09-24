@@ -9,7 +9,6 @@ import { CourseInterface } from "../../../../interfaces/ICourse";
 import { CourseCategoryInterface } from "../../../../interfaces/ICourse_Category"
 import { CreateCourse, GetCourseCategories } from '../../../../services/https';
 import { PlusOutlined } from '@ant-design/icons';
-import ImgCrop from 'antd-img-crop';
 
 function Create() {
   const location = useLocation();
@@ -123,9 +122,7 @@ function Create() {
 
       if (res) {
           messageApi.success('สร้างหลักสูตรสำเร็จ');
-          setTimeout(() => {
-            navigate('/tutor');
-          }, 2000);
+          navigate('/tutor');
       } else {
           messageApi.error(`Error: ${res.message}`);
       }
@@ -134,6 +131,7 @@ function Create() {
       console.error('Error creating course:', error);
       messageApi.error('เกิดข้อผิดพลาดในการสร้างหลักสูตร');
   }
+  
   };
 
   return (
@@ -168,21 +166,19 @@ function Create() {
                 style={{ width: '100%', height: '100%', borderRadius: '20px' }}
               />
             </div>
-            <ImgCrop>
-              <Upload
-                fileList={fileList}
-                onChange={handleUploadChange}
-                maxCount={1}
-                beforeUpload={() => false}
-                listType="picture-card"
-                style={{ marginTop: '10px' }}
-              >
-                <div>
-                  <PlusOutlined />
-                  <div style={{ marginTop: 8 }}>อัพโหลดรูปประจำตัว</div>
-                </div>
-              </Upload>
-            </ImgCrop>
+            <Upload
+              fileList={fileList}
+              onChange={handleUploadChange}
+              maxCount={1}
+              beforeUpload={() => false}
+              listType="picture-card"
+              style={{ marginTop: '10px' }}
+            >
+              <div>
+                <PlusOutlined />
+                <div style={{ marginTop: 8 }}>อัพโหลดรูปประจำตัว</div>
+              </div>
+            </Upload>
           </div>
 
           <div style={{
@@ -231,13 +227,7 @@ function Create() {
                 name="Duration"
                 type="number"
                 value={formData.Duration}
-                onChange={(e) => {
-                  const value = Number(e.target.value);
-                  if (value >= 0) {
-                    handleChange(e);
-                  }
-                }}
-                min={0}
+                onChange={handleChange}
                 style={{
                   padding: '12px 15px',
                   borderRadius: '8px',

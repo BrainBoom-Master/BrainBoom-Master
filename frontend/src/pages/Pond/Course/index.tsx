@@ -1,22 +1,24 @@
 import { useEffect, useState } from "react";
-import { Card, Button, Empty } from "antd";
+import { Card, Button } from "antd";
 import { Star } from "phosphor-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import HeaderComponent from "../../../components/header";
-import { GetCourseCategories, GetCourses, GetReviewById } from "../../../services/https";
+import { GetCourses, GetReviewById } from "../../../services/https";
 import { CourseInterface } from "../../../interfaces/ICourse";
 import { ReviewInterface } from "../../../interfaces/IReview";
-import { CourseCategoryInterface } from "../../../interfaces/ICourse_Category";
 
 const { Meta } = Card;
 
 function Course() {
   const [courses, setCourses] = useState<CourseInterface[]>([]);
-  const [categories, setCategories] = useState<CourseCategoryInterface[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [reviews, setReviews] = useState<{ [courseID: number]: ReviewInterface[] }>({});
-  const [averageRatings, setAverageRatings] = useState<{ [courseID: number]: number }>({});
-  const [error] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [reviews, setReviews] = useState<{
+    [courseID: number]: ReviewInterface[];
+  }>({});
+  const [averageRatings, setAverageRatings] = useState<{
+    [courseID: number]: number;
+  }>({});
 
   const navigate = useNavigate();
 
@@ -24,19 +26,21 @@ function Course() {
     navigate(`/course/${course.ID}`, { state: { course } });
   };
 
-  const handleAllCourseClick = (categoryID: number) => {
-    navigate(`/search`, { state: { categoryID } });
-  };
-
   const getCourses = async () => {
     try {
       const courseData = await GetCourses();
+      console.log("Courses fetched:", courseData);
       if (courseData) {
         setCourses(courseData);
       } else {
-        console.log("No courses found");
+        setError("No courses found");
       }
     } catch (error) {
+      if (error instanceof Error) {
+        setError("Failed to fetch courses: " + error.message);
+      } else {
+        setError("Failed to fetch courses");
+      }
       console.error("Error fetching courses:", error);
     } finally {
       setLoading(false);
@@ -46,35 +50,28 @@ function Course() {
   const fetchReviews = async (courseID: number) => {
     try {
       const reviewsData = await GetReviewById(courseID);
-      setReviews((prevReviews) => ({ ...prevReviews, [courseID]: reviewsData }));
+      setReviews((prevReviews) => ({
+        ...prevReviews,
+        [courseID]: reviewsData,
+      }));
 
+      // Calculate average rating for the course
       const ratings = reviewsData.map((review) => review.Rating ?? 0);
-      const average = ratings.length > 0 
-        ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length 
-        : 0;
-      setAverageRatings((prevRatings) => ({ 
-        ...prevRatings, 
-        [courseID]: parseFloat(average.toFixed(1)) 
+      const average =
+        ratings.length > 0
+          ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length
+          : 0;
+      setAverageRatings((prevRatings) => ({
+        ...prevRatings,
+        [courseID]: parseFloat(average.toFixed(1)),
       }));
     } catch (error) {
       console.error(`Error fetching reviews for course ${courseID}:`, error);
     }
   };
 
-  const getCategories = async () => {
-    try {
-      const categories = await GetCourseCategories();
-      if (categories) {
-        setCategories(categories);
-      }
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-    }
-  };
-
   useEffect(() => {
     getCourses();
-    getCategories();
   }, []);
 
   useEffect(() => {
@@ -88,199 +85,152 @@ function Course() {
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
 
+  const categories = [
+    { id: 1, title: "คอร์สทั้งหมด" },
+    { id: 2, title: "ยอดนิยม" },
+    { id: 3, title: "แนะนำสำหรับคุณ" },
+  ];
+
   return (
     <>
       <HeaderComponent />
       <section style={{ padding: "95px 50px 30px 50px" }}>
-        <h2 style={{ 
-          fontSize: "30px", 
-          color: "#002A48", 
-          fontWeight: "bold", 
-          marginBottom: "20px" 
-        }}>
-          คอร์สทั้งหมด
-        </h2>
-        <div style={{ 
-          display: "flex", 
-          flexDirection: "row", 
-          overflowX: "auto", 
-          gap: "15px", 
-          paddingBottom: "15px", 
-        }}>
-
-          {courses.length > 0 ? (
-            courses.map((course: CourseInterface) => (
-              <div key={course.ID} onClick={() => handleCourseClick(course)}>
-                <Card
-                  hoverable
-                  cover={
-                    <img
-                      alt={course.Title}
-                      src={course.ProfilePicture || "https://via.placeholder.com/200x200"}
-                      style={{
-                        borderRadius: "20px",
-                        height: "200px",
-                        objectFit: "cover",
-                        width: "100%",
-                        padding: "10px",
-                      }}
-                    />
-                  }
-                  style={{
-                    borderRadius: "15px",
-                    overflow: "hidden",
-                    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                    width: "200px",
-                    backgroundColor: "#fff",
-                    border: "1px solid #ddd",
-                  }}
-                >
-                  <Meta title={course.Title} description={`Tutor: ${course.TutorProfileID}`} />
-                  <div style={{ 
-                    marginTop: "5px", 
-                    display: "flex", 
-                    alignItems: "center", 
-                    fontSize: "12px", 
-                    gap: "5px" 
-                  }}>
-                    <Star size={15} weight="fill" style={{ color: "#ffcc00" }} />
-                    <span>
-                      {averageRatings[course.ID || 0] || 0} ({reviews[course.ID || 0]?.length || 0} รีวิว)
-                    </span>
-                  </div>
-                  <div style={{ 
-                    marginTop: "5px", 
-                    fontWeight: "bold", 
-                    color: "#ff4500", 
-                    fontSize: "14px" 
-                  }}>
-                    <span className="currency">฿</span>
-                    {Number(course.Price?.toFixed(2)).toLocaleString()}
-                  </div>
-                </Card>
-              </div>
-            ))
-          ) : (
-            <Empty description="ไม่พบคอร์ส" />
-          )}
-          <div style={{ 
-            flex: "none", 
-            display: "flex", 
-            justifyContent: "center", 
-            alignItems: "center", 
-            width: "100px" 
-          }}>
-            <div onClick={() => handleAllCourseClick(0)}>
-              <Button type="link" style={{ 
-                display: "block", 
-                textAlign: "center", 
-                color: "#002A48", 
-                margin: "10px 0" 
-              }}>
-                ดูเพิ่มเติม
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        {categories.map((category) => {
-          const filteredCourses = courses.filter(course => course.CourseCategoryID === category.ID);
-          
-          return (
-            <div key={category.ID} style={{ marginBottom: "20px" }}>
-              <h2 style={{ 
-                fontSize: "30px", 
-                color: "#002A48", 
-                fontWeight: "bold", 
+        {categories.map((category) => (
+          <div key={category.id} style={{ marginBottom: "20px" }}>
+            <h2
+              style={{
+                fontSize: "30px",
+                color: "#002A48",
+                fontWeight: "bold",
                 marginBottom: "20px",
-                marginTop: "20px", 
-              }}>
-                {category.CategoryName}
-              </h2>
-              <div style={{ 
-                display: "flex", 
-                flexDirection: "row", 
-                overflowX: "auto", 
-                gap: "15px", 
-                paddingBottom: "15px" 
-              }}>
-                {filteredCourses.length > 0 ? (
-                  filteredCourses.slice(0, 10).map((course: CourseInterface) => (
-                    <div key={course.ID} onClick={() => handleCourseClick(course)}>
-                      <Card
-                        hoverable
-                        cover={
-                          <img
-                            alt={course.Title}
-                            src={course.ProfilePicture || "https://via.placeholder.com/200x200"}
-                            style={{
-                              borderRadius: "20px",
-                              height: "200px",
-                              objectFit: "cover",
-                              width: "100%",
-                              padding: "10px",
-                            }}
-                          />
+              }}
+            >
+              {category.title}
+            </h2>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                overflowX: "auto",
+                gap: "15px",
+                paddingBottom: "15px",
+              }}
+            >
+              {courses.slice(0, 7).map((course: CourseInterface) => (
+                <div key={course.ID} onClick={() => handleCourseClick(course)}>
+                  <Card
+                    key={`course-card-${course.ID}`}
+                    hoverable
+                    cover={
+                      <img
+                        alt={course.Title}
+                        src={
+                          course.ProfilePicture ||
+                          "https://via.placeholder.com/200x200"
                         }
                         style={{
-                          borderRadius: "15px",
+                          borderRadius: "20px",
+                          height: "200px",
+                          objectFit: "cover",
+                          width: "100%",
+                          padding: "10px",
                           overflow: "hidden",
-                          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                          width: "200px",
-                          backgroundColor: "#fff",
-                          border: "1px solid #ddd",
                         }}
-                      >
-                        <Meta title={course.Title} description={`Tutor: ${course.TutorProfileID}`} />
-                        <div style={{ 
-                          marginTop: "5px", 
-                          display: "flex", 
-                          alignItems: "center", 
-                          fontSize: "12px", 
-                          gap: "5px" 
-                        }}>
-                          <Star size={15} weight="fill" style={{ color: "#ffcc00" }} />
-                          <span>
-                            {averageRatings[course.ID || 0] || 0} ({reviews[course.ID || 0]?.length || 0} รีวิว)
-                          </span>
-                        </div>
-                        <div style={{ 
-                          marginTop: "5px", 
-                          fontWeight: "bold", 
-                          color: "#ff4500", 
-                          fontSize: "14px" 
-                        }}>
-                          <span className="currency">฿</span>
-                          {Number(course.Price?.toFixed(2)).toLocaleString()}
-                        </div>
-                      </Card>
+                      />
+                    }
+                    style={{
+                      borderRadius: "15px",
+                      overflow: "hidden",
+                      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                      width: "200px",
+                      backgroundColor: "#fff",
+                      border: "1px solid #ddd",
+                    }}
+                    styles={{ body: { padding: "0px 10px 10px 10px" } }}
+                  >
+                    <Meta
+                      title={course.Title}
+                      description={`Tutor: ${course.TutorProfileID}`}
+                      style={{ fontSize: "12px" }}
+                    />
+                    <div
+                      style={{
+                        marginTop: "5px",
+                        display: "flex",
+                        alignItems: "center",
+                        fontSize: "12px",
+                        gap: "5px",
+                      }}
+                    >
+                      <Star
+                        size={15}
+                        weight="fill"
+                        style={{ color: "#ffcc00", marginLeft: "5px" }}
+                      />
+                      <div style={{ display: "flex", alignItems: "center" }}>
+                        <span
+                          style={{
+                            marginLeft: "10px",
+                            fontSize: "18px",
+                            fontWeight: "bold",
+                            color: "rgb(99, 94, 94)",
+                          }}
+                        >
+                          {course.ID !== undefined &&
+                          reviews[course.ID]?.length > 0
+                            ? `${reviews[
+                                course.ID
+                              ].length.toLocaleString()} Course Rating: ${
+                                averageRatings[course.ID] || 0
+                              } Ratings`
+                            : "0 Course Rating: 0 Ratings"}
+                        </span>
+                      </div>
                     </div>
-                  ))
-                ) : (
-                  <Empty description="ไม่พบคอร์สในหมวดหมู่นี้" />
-                )}
-                <div style={{ 
-                  flex: "none", 
-                  display: "flex", 
-                  justifyContent: "center", 
-                  alignItems: "center", 
-                  width: "100px" 
-                }}>
-                  <div onClick={() => handleAllCourseClick(category.ID || 0)}>
-                    <Button type="link" style={{ 
-                      display: "block", 
-                      textAlign: "center", 
-                      color: "#002A48", 
-                      margin: "10px 0" 
-                    }}>
-                      ดูเพิ่มเติม
-                    </Button>
-                  </div>
+                    <div
+                      style={{
+                        marginTop: "5px",
+                        fontWeight: "bold",
+                        color: "#ff4500",
+                        fontSize: "14px",
+                      }}
+                    >
+                      <span className="currency">฿</span>
+                      {course.Price?.toFixed(2)}
+                    </div>
+                  </Card>
                 </div>
+              ))}
+              <div
+                key={`more-btn-${category.id}`}
+                style={{
+                  flex: "none",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  width: "100px",
+                }}
+              >
+                <Link
+                  to={`/course/category/${category.id}`}
+                  style={{ textDecoration: "none" }}
+                >
+                  <Button
+                    type="link"
+                    style={{
+                      display: "block",
+                      textAlign: "center",
+                      color: "#002A48",
+                      margin: "10px 0",
+                    }}
+                  >
+                    ดูเพิ่มเติม
+                  </Button>
+                </Link>
               </div>
             </div>
-          );
-        })}
+          </div>
+        ))}
       </section>
     </>
   );
