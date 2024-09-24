@@ -12,7 +12,19 @@ type Payments struct {
 	UserID *uint
 	User   Users  `gorm:"foreignKey:UserID"`
 
-	// UserId ทำหน้าที่เป็น FK
+	// CourseID ทำหน้าที่เป็น FK
 	CourseID *uint
 	Course   Courses  `gorm:"foreignKey:CourseID"`
+
+	// PaymentMethodID ทำหน้าที่เป็น FK
+	PaymentMethodID uint
+	PaymentMethod PaymentMethods `gorm:"foreignKey:PaymentMethodID"`
+
+	// PaymentMethodID ทำหน้าที่เป็น FK
+	CreditCardID *uint
+	CreditCard CreditCards `gorm:"foreignKey:CreditCardID"`
+
+	// PaymentMethodID ทำหน้าที่เป็น FK
+	PromptPayID *uint
+	PromptPay PromptPays `gorm:"foreignKey:PromptPayID"`
 }

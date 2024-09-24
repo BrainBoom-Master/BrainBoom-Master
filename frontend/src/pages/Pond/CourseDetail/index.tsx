@@ -126,7 +126,7 @@ function CourseDetail() {
                   borderColor: '#003459',
                   transition: 'background-color 0.3s, border-color 0.3s',
                 }}
-                
+                //onClick={() => navigate('/payment')}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = '#002a3d';
                   e.currentTarget.style.borderColor = '#002a3d';

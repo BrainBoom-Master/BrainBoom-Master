@@ -6,13 +6,16 @@ import (
 	"github.com/Parichatx/user-system2/config"
 	"github.com/Parichatx/user-system2/controller/course"
 	"github.com/Parichatx/user-system2/controller/course_category"
+	"github.com/Parichatx/user-system2/controller/creditcard"
 	"github.com/Parichatx/user-system2/controller/like"
-	"github.com/Parichatx/user-system2/controller/login_history"
 	"github.com/Parichatx/user-system2/controller/payment"
+	"github.com/Parichatx/user-system2/controller/payment_method"
+	"github.com/Parichatx/user-system2/controller/promptpay"
 	"github.com/Parichatx/user-system2/controller/review"
 	"github.com/Parichatx/user-system2/controller/task"
 	"github.com/Parichatx/user-system2/controller/tutor_profiles"
 	"github.com/Parichatx/user-system2/controller/users"
+
 	//"github.com/Parichatx/user-system2/middlewares"
 	"github.com/gin-gonic/gin"
 )
@@ -42,23 +45,12 @@ func main() {
 		r.GET("/users", users.GetAll)
 		r.GET("/users/:id", users.GetUserById)
 		r.DELETE("/users/:id", users.Delete)
-		r.PUT("/users/password/:id", users.ChangePassword)
-
-		r.POST("/tutor_profiles", tutor_profiles.CreateTutorProfile)
-		r.GET("/tutor_profiles/:UserID", tutor_profiles.GetTutorProfileByUserID)
-		r.PUT("/tutor_profiles/:UserID", tutor_profiles.UpdateTutorProfile)
-
-		r.POST("/loginhistory", login_history.CreateLoginHistory)
-		r.GET("/loginhistory/:id", login_history.GetLoginHistory)
-		r.GET("/loginhistory/users/:UserID", login_history.ListUserLoginHistory)
-		r.DELETE("/loginhistory/:id", login_history.DeleteLoginHistory)
+		r.GET("/tutor_profiles/:id", tutor_profiles.GetTutorProfileByUserID) 
 
 		// Course Routes By Pond
 		router.GET("/courses", course.ListCourse)
 		router.GET("/courses/:id", course.GetCourse)
 		router.GET("/courses/category/:id", course.GetCourseByCategoryID)
-		router.GET("/courses/price/asc", course.GetCourseByPriceASC)
-		router.GET("/courses/price/desc", course.GetCourseByPriceDESC)
 		router.GET("/tutor/:id", course.GetCourseByTutorID)
 		router.GET("/courses/search", course.SearchCourseByKeyword)
 		router.POST("/courses", course.CreateCourse)
@@ -69,7 +61,7 @@ func main() {
 		router.GET("/categories", CourseCategories.ListCourse_Category)
 
 		//Review By Tawun
-		router.GET("/user/:id", reviews.GetUserByIdReviews)
+		router.GET("/user/:id", reviews.GetUserByIdReviews) 
 		router.GET("/reviews", reviews.ListReview)
 		router.POST("/reviews", reviews.CreateReview)
 		router.GET("/reviews/course/:id", reviews.GetReviewByCourseID)
@@ -79,7 +71,6 @@ func main() {
 		router.POST("/reviews/like", like.LikeReview)
 		router.DELETE("/reviews/unlike", like.UnlikeReview)
 		router.GET("/reviews/:userID/:reviewID/like", like.CheckUserLikeStatus)
-		router.PATCH("/reviews/:id", reviews.UpdateReview)
 
 		//Admin By Pai
 		router.GET("/tasks", tasks.ListTasks)
@@ -89,25 +80,32 @@ func main() {
         router.DELETE("/tasks/:id", tasks.DeleteTask)
 		router.GET("/course", course.ListCourse)
         router.GET("/course-count", course.CountCourses)
-		router.GET("/tutor-count",users.GetUserForTutor)
-		router.GET("/student-count", users.GetUserForStudent)
-		router.GET("/total-paid",payment.GetTotalPaid)
-		router.GET("/recent-paid",payment.GetRecentTransactions)
-		router.GET("/courses-graph", course.GetGraphData)
-		router.POST("/create-user",users.CreateUserByAdmin)
 
 		//Payment By Mac
-		r.GET("/payments/user/:userID", payment.GetPaymentByIdUser) // ตะวันใช้เรียกดู user in MyCourse
-		r.GET("/payments/courses/:courseID", payment.GetPaymentByIDCourse)
-		router.GET("/payments", payment.ListAllPayments)
+		router.GET("/payments/user/:userID", payment.GetPaymentByIdUser) // ตะวันใช้เรียกดู user in MyCourse 
+		router.GET("/payments", payment.ListPayments)
 		router.GET("/course-price/:id", payment.GetCoursePrice)
 		router.GET("/course-title/:id", payment.GetCourseName)
+		router.GET("/promptpays", promptpay.ListPromptPays)
+		router.GET("/creditcards", creditcard.ListCreditCards)
+		router.GET("/paymentmethods", paymentmethod.ListPaymentMethods)
+		router.POST("/credit-card", creditcard.CreateCreditCard)
+		router.POST("/prompt-pay", promptpay.CreatePromptPay)
 		router.POST("/payment", payment.CreatePayment)
 	}
 
 	r.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "API RUNNING... PORT: %s", PORT)
 	})
+
+	// ของ อาย ????
+	// เส้นทางสำหรับ tutor profiles
+	// Route to get tutor profile by userID
+	//r.GET("/:id", tutor_profiles.GetTutorProfile)
+	//r.GET("/users/:id", tutor_profiles.GetTutorProfileByUserID)
+	//r.POST("/tutor_profiles", tutor_profiles.CreateTutorProfile)
+	//r.PATCH("/tutor_profiles/:id", tutor_profiles.UpdateTutorProfile)
+	//r.DELETE("/tutor_profiles/:id", tutor_profiles.DeleteTutorProfile)
 
 	// เริ่มรันเซิร์ฟเวอร์
 	r.Run("localhost:" + PORT)

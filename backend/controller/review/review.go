@@ -184,36 +184,3 @@ func GetUserByIdReviews(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, user)
 }
-
-func UpdateReview(c *gin.Context) {
-    var review entity.Reviews
-
-    reviewID := c.Param("id")
-
-    db := config.DB()
-    if err := db.First(&review, reviewID).Error; err != nil {
-        c.JSON(http.StatusNotFound, gin.H{"error": "Review not found"})
-        return
-    }
-
-
-    if err := c.ShouldBindJSON(&review); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-        return
-    }
-
-    updatedReview := entity.Reviews{
-        Rating:     review.Rating,
-        Comment:    review.Comment,
-        Picture:    review.Picture, 
-        ReviewDate: time.Now(),      
-    }
-
-
-    if err := db.Model(&review).Updates(updatedReview).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-        return
-    }
-
-    c.JSON(http.StatusOK, gin.H{"message": "Updated successfully", "data": review})
-}

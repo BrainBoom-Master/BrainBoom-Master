@@ -9,14 +9,12 @@ import { CourseInterface } from "../../../../interfaces/ICourse";
 import { CourseCategoryInterface } from "../../../../interfaces/ICourse_Category"
 import { GetCourseCategories, UpdateCourse } from '../../../../services/https';
 import { PlusOutlined } from '@ant-design/icons';
-import ImgCrop from 'antd-img-crop';
 
 function Edit() {
   const location = useLocation();
   const [categories, setCategories] = useState<CourseCategoryInterface[]>([]);
+  //const tutor = location.state?.tutor;
   const course = location.state?.course;
-
-  const [priceInput, setPriceInput] = useState<string>((course?.Price)?.toFixed(2));
 
   const GetCategory = async () => {
     try {
@@ -55,13 +53,15 @@ function Edit() {
     if (name === 'Price') {
       const regex = /^\d*\.?\d{0,2}$/;
       if (regex.test(value) || value === '') {
-        setPriceInput(value);
+        setFormData((prevData) => ({
+          ...prevData,
+          [name]: value ? parseFloat(value) : 0,
+        }));
       }
     } else if (name === 'Duration') {
-      const valueAsNumber = Number(value);
       setFormData((prevData) => ({
         ...prevData,
-        [name]: valueAsNumber >= 0 ? valueAsNumber : 0,
+        [name]: value ? parseInt(value, 10) : 0,
       }));
     } else {
       setFormData((prevData) => ({
@@ -105,7 +105,7 @@ function Edit() {
 
     const payload = {
       ...formData,
-      Price: parseFloat(priceInput) || 0,
+      CourseCategoryID: formData.CourseCategoryID,
     };
 
     if (!formData.Title || formData.Price <= 0 || formData.Duration <= 0 || formData.TeachingPlatform === '' || !formData.CourseCategoryID) {
@@ -117,9 +117,7 @@ function Edit() {
       const res = await UpdateCourse(course.ID ,payload);
       if (res) {
         messageApi.success('แก้ไขหลักสูตรสำเร็จ');
-        setTimeout(() => {
-          navigate('/tutor');
-        }, 2000);
+        navigate('/tutor');
       } else {
         messageApi.error(`Error: ${res.message}`);
       }
@@ -127,10 +125,6 @@ function Edit() {
       console.error('Error editing course:', error);
       messageApi.error('เกิดข้อผิดพลาดในการแก้ไขหลักสูตร');
     }
-  };
-
-  const handleCancel = () => {
-    navigate('/tutor');
   };
 
   return (
@@ -165,21 +159,19 @@ function Edit() {
                 style={{ width: '100%', height: '100%', borderRadius: '20px' }}
               />
             </div>
-            <ImgCrop>
-              <Upload
-                fileList={fileList}
-                onChange={handleUploadChange}
-                maxCount={1}
-                beforeUpload={() => false}
-                listType="picture-card"
-                style={{ marginTop: '10px' }}
-              >
-                <div>
-                  <PlusOutlined />
-                  <div style={{ marginTop: 8 }}>อัพโหลดรูปประจำตัว</div>
-                </div>
-              </Upload>
-            </ImgCrop>
+            <Upload
+              fileList={fileList}
+              onChange={handleUploadChange}
+              maxCount={1}
+              beforeUpload={() => false}
+              listType="picture-card"
+              style={{ marginTop: '10px' }}
+            >
+              <div>
+                <PlusOutlined />
+                <div style={{ marginTop: 8 }}>อัพโหลดรูปประจำตัว</div>
+              </div>
+            </Upload>
           </div>
 
           <div style={{
@@ -211,7 +203,7 @@ function Edit() {
                 placeholder="ราคา"
                 name="Price"
                 type="text"
-                value={priceInput}
+                value={formData.Price.toString()}
                 onChange={handleChange}
                 style={{
                   padding: '12px 15px',
@@ -228,13 +220,7 @@ function Edit() {
                 name="Duration"
                 type="number"
                 value={formData.Duration}
-                onChange={(e) => {
-                  const value = Number(e.target.value);
-                  if (value >= 0) {
-                    handleChange(e);
-                  }
-                }}
-                min={0}
+                onChange={handleChange}
                 style={{
                   padding: '12px 15px',
                   borderRadius: '8px',
@@ -259,28 +245,28 @@ function Edit() {
               />
             </div>
             <div>
-              <Title level={5}>คำบรรยาย</Title>
+              <Title level={5}>คำอธิบาย</Title>
               <TextArea
-                rows={4}
-                placeholder="คำบรรยาย"
+                placeholder="คำอธิบาย"
                 name="Description"
                 value={formData.Description}
                 onChange={handleChange}
                 style={{
+                  padding: '12px 15px',
                   borderRadius: '8px',
                   fontSize: '16px',
-                  boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.1)',
+                  height: '150px',
+                  resize: 'vertical',
                 }}
               />
             </div>
             <div>
               <Title level={5}>เลือกหมวดหมู่</Title>
               <Select
-                defaultValue = {course?.CourseCategoryID || 0}
-                style={{ width: "100%" }}
+                placeholder="เลือกหมวดหมู่"
                 onChange={handleCategoryChange}
+                style={{ width: '100%' }}
               >
-                <Select.Option value={0} disabled>เลือกหมวดหมู่</Select.Option>
                 {categories.map((category) => (
                   <Select.Option key={category.ID} value={category.ID}>
                     {category.CategoryName}
@@ -288,14 +274,22 @@ function Edit() {
                 ))}
               </Select>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
-              <Button onClick={handleCancel} style={{ width: '200px', backgroundColor: '#D3AC2B', color: '#fff' }}>
-                ยกเลิก
-              </Button>
-              <Button type="primary" onClick={handleSubmit} style={{ width: '200px', backgroundColor: '#333D51', color: '#fff' }}>
-                สร้างหลักสูตร
-              </Button>
-            </div>
+            <Button
+              type="primary"
+              onClick={handleSubmit}
+              style={{
+                padding: '12px 20px',
+                backgroundColor: '#333d51',
+                color: 'white',
+                borderRadius: '20px',
+                fontSize: '18px',
+                fontWeight: 'bold',
+                width: '150px',
+                height: '50px',
+              }}
+            >
+              ยืนยัน
+            </Button>
           </div>
         </div>
       </section>

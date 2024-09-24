@@ -1,23 +1,23 @@
 export interface UsersInterface {
 
-  ID?: number;
+    ID?: number;
 
-  Username?: string;
+    Username?: string;
 
-  Password?: string;
+    Password?: string;
 
-  Email?: string;
+    Email?: string;
 
-  FirstName?: string;
+    FirstName?: string;
+  
+    LastName?: string;
+  
+    BirthDay?: string;
 
-  LastName?: string;
+    Profile?: string;
 
-  BirthDay?: string;
+    UserRoleID?: number;
 
-  Profile?: string;
+    GenderID?: number;
 
-  UserRoleID?: number;
-
-  GenderID?: number;
-
-}
+  }

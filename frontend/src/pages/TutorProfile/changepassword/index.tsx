@@ -43,7 +43,6 @@ function ChangePassword() {
   return (
     <div>
       {contextHolder}
-      
       <Row style={{ height: '100vh', backgroundColor: '#FFFFFF', margin: 0 }}>
         <Col
           xs={24}

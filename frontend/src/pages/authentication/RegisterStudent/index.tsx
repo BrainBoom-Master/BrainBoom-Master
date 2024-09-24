@@ -35,9 +35,9 @@ function SignUpStudentPages() {
   };
 
   const onFinish = async (values: UsersInterface) => {
-    values.Profile = fileList[0]?.thumbUrl; // Set the profile image URL
 
     let res = await CreateUser(values);
+
     if (res.status === 201) {
       messageApi.open({
         type: "success",
@@ -62,7 +62,7 @@ function SignUpStudentPages() {
         <Col xs={24} sm={4} md={4} lg={4} xl={4} style={{ backgroundColor: "#333D51", display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column", position: "relative" }}>
           <img
             alt="logo"
-            style={{ width: "50%", marginTop: "-200%" }}
+            style={{ width: "50%" , marginTop: "-200%"}}
             src={logo1}
             className="images-logo"
           />
@@ -81,7 +81,7 @@ function SignUpStudentPages() {
           }}
         >
           <Card
-            className="card-login" style={{ width: "100%", height: "100%", maxWidth: 1100, border: "none", position: "relative", padding: "20px" }}
+            className="card-login" style={{ width: "100%", height: "100%", maxWidth: 1100, border: "none", position: "relative", padding: "20px"}}
           >
             <Button
               type="link"
@@ -97,7 +97,7 @@ function SignUpStudentPages() {
             </Button>
             <Row align={"middle"} justify={"center"}>
               <Col xs={24} sm={20} md={20} lg={20} xl={20}>
-                <h2 className="header" style={{ marginBottom: "50px", textAlign: 'center' }}>
+                <h2 className="header" style={{ marginBottom: "50px" , textAlign: 'center'}}>
                   Student Account Sign Up
                 </h2>
 
@@ -278,23 +278,25 @@ function SignUpStudentPages() {
                       </Form.Item>
                     </Col>
 
+                   
                     <Col xs={24} sm={24} md={24} lg={12} xl={12}>
-                      <Form.Item
-                        label="Role"
-                        name="user_role_id"
-                        initialValue={3} // This is the value for 'Student'
-                        noStyle
-                      >
-                        <Input type="hidden" value={3} />
-                      </Form.Item>
-                      <Form.Item label="Role Display">
-                        <Input disabled value="This is Student User!" />
-                      </Form.Item>
-                    </Col>
+  <Form.Item
+    label="Role"
+    name="user_role_id"
+    initialValue={3} // This is the value for 'Student'
+    noStyle
+  >
+    <Input type="hidden" value={3} />
+  </Form.Item>
+  <Form.Item label="Role Display">
+    <Input disabled value="This is Student User!" />
+  </Form.Item>
+</Col>
+
 
                     <Col span={24}>
                       <Form.Item>
-                        <Button type="primary" htmlType="submit" style={{ width: "100%" }}>
+                        <Button type="primary" htmlType="submit" className="login-from-button" style={{ width: "100%" }}>
                           สมัครสมาชิก
                         </Button>
                       </Form.Item>

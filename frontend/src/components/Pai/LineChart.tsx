@@ -1,8 +1,8 @@
-import { ResponsiveLine, Serie } from "@nivo/line";
+// LineChart.tsx
+import { ResponsiveLine, Serie } from "@nivo/line"; // นำเข้า Serie ที่นี่
 import { useTheme } from "@mui/material";
 import { tokens } from "../../theme";
-import { GetDataGraph } from "../../services/https"; 
-import React, { useEffect, useState } from "react";
+import { mockLineData as data } from "../../data/mockData";
 
 interface LineChartProps {
   isCustomLineColors?: boolean;
@@ -12,31 +12,10 @@ interface LineChartProps {
 const LineChart: React.FC<LineChartProps> = ({ isCustomLineColors = false, isDashboard = false }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const [data, setData] = useState<Serie[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-
-  useEffect(() => {
-    const fetchGraphData = async () => {
-      try {
-        const response = await GetDataGraph();
-        setData(response);
-      } catch (error) {
-        console.error("Error fetching graph data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchGraphData();
-  }, []);
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
 
   return (
     <ResponsiveLine
-      data={data}
+      data={data as Serie[]} // ใช้ Serie[] โดยไม่ใช้ generic
       theme={{
         axis: {
           domain: {
@@ -70,7 +49,7 @@ const LineChart: React.FC<LineChartProps> = ({ isCustomLineColors = false, isDas
           },
         },
       }}
-      colors={isDashboard ? { datum: "color" } : ["#00BFFF"]}
+      colors={isDashboard ? { datum: "color" } : { scheme: "nivo" }}
       margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
       xScale={{ type: "point" }}
       yScale={{

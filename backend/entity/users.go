@@ -33,6 +33,12 @@ type Users struct {
 	// 1 user สามารถมีหลาย payment
 	Payments []Payments `gorm:"foreignKey:UserID"`
 
+	// 1 user สามารถมีได้หลาย creditcard
+	CreditCards []CreditCards `gorm:"foreignKey:UserID"`
+
+	// 1 user สามารถมีได้หลาย promptpay
+	PromptPays []PromptPays `gorm:"foreignKey:UserID"`
+
 	// 1 user สามารถมีหลาย review
 	Reviews []Reviews `gorm:"foreignKey:UserID"`
 

@@ -5,83 +5,37 @@ import Header from "../../../components/Pai/Header";
 import { useState } from "react";
 import HeaderandSidebar from "../../Pai/ADD/Header";
 import Sidebar from "../../Pai/ADD/Sidebar";
-import "../Dashboard/apptest.css";
-import { CreateUserByAdmin } from "../../../services/https";
-import { UsersInterface } from "../../../interfaces/IUser";
-import { DatePicker } from 'antd'; // Import DatePicker from antd
-import moment from 'moment'; // Import moment for date formatting
-import { Select } from 'antd';
-
-// Define the FormValues interface
+import "../Dashboard/apptest.css"
+// กำหนดประเภทสำหรับค่าฟอร์ม
 interface FormValues {
   username: string;
   password: string;
+  email: string;
   firstName: string;
   lastName: string;
-  email: string;
-  birthday: moment.Moment | null; // Use moment for date handling
-  userRole: string;
-  gender: string;
+  birthday: Date;
+  userRole: string; // เปลี่ยนเป็น string
 }
 
-// Define role and gender mappings
-const roleMapping: { [key: string]: number } = {
-  Student: 3,
-  Tutor: 2,
-  Admin: 1,
-};
-
-const genderMapping: { [key: string]: number } = {
-  Male: 1,
-  Female: 2,
-};
-
 const Form = () => {
+  const handleFormSubmit = (
+    values: FormValues,
+    actions: FormikHelpers<FormValues>
+  ) => {
+    console.log(values);
+    actions.setSubmitting(false);
+  };
+
   const [openSidebarToggle, setOpenSidebarToggle] = useState<boolean>(false);
-  const [responseMessage, setResponseMessage] = useState<string>("");
 
   const OpenSidebar = (): void => {
     setOpenSidebarToggle(!openSidebarToggle);
   };
 
-  const handleFormSubmit = async (
-    values: FormValues,
-    actions: FormikHelpers<FormValues>
-  ) => {
-    // Save birthday to localStorage
-    if (values.birthday) {
-      localStorage.setItem("birthday", values.birthday.toISOString());
-    }
-
-    try {
-      const response = await CreateUserByAdmin({
-        Username: values.username,
-        Password: values.password,
-        Email: values.email,
-        FirstName: values.firstName,
-        LastName: values.lastName,
-        BirthDay: values.birthday ? values.birthday.format("YYYY-MM-DD") : "", // Convert birthday to required format
-        UserRoleID: roleMapping[values.userRole], // Convert to number
-        GenderID: genderMapping[values.gender], // Convert to number
-      });
-
-      if (response?.data?.success) {
-        setResponseMessage("User created successfully!");
-        actions.resetForm(); // Reset form after successful submission
-      } else {
-        setResponseMessage(response?.data?.message || "Failed to create user.");
-      }
-    } catch (error) {
-      setResponseMessage("An error occurred while creating the user.");
-    } finally {
-      actions.setSubmitting(false);
-    }
-  };
-
   return (
     <div className="grid-container">
-      <HeaderandSidebar OpenSidebar={OpenSidebar} />
-      <Sidebar openSidebarToggle={openSidebarToggle} OpenSidebar={OpenSidebar} />
+    <HeaderandSidebar OpenSidebar={OpenSidebar} />
+    <Sidebar openSidebarToggle={openSidebarToggle} OpenSidebar={OpenSidebar} />
       <Box
         display="flex"
         justifyContent="center"
@@ -90,7 +44,6 @@ const Form = () => {
       >
         <Box width="70%" m="20px">
           <Header title="CREATE USER" subtitle="Create a New User Profile" />
-          {responseMessage && <Box mb="20px">{responseMessage}</Box>}
           <Formik
             onSubmit={handleFormSubmit}
             initialValues={initialValues}
@@ -111,6 +64,7 @@ const Form = () => {
                   gridTemplateColumns="repeat(4, minmax(0, 1fr))"
                   sx={{ "& > div": { gridColumn: "span 2" } }}
                 >
+                  {/* Other form fields */}
                   <TextField
                     fullWidth
                     variant="filled"
@@ -121,7 +75,11 @@ const Form = () => {
                     value={values.username}
                     name="username"
                     error={!!touched.username && !!errors.username}
-                    helperText={touched.username && errors.username}
+                    helperText={
+                      touched.username && errors.username
+                        ? String(errors.username)
+                        : ""
+                    }
                   />
                   <TextField
                     fullWidth
@@ -133,7 +91,11 @@ const Form = () => {
                     value={values.password}
                     name="password"
                     error={!!touched.password && !!errors.password}
-                    helperText={touched.password && errors.password}
+                    helperText={
+                      touched.password && errors.password
+                        ? String(errors.password)
+                        : ""
+                    }
                   />
                   <TextField
                     fullWidth
@@ -145,7 +107,11 @@ const Form = () => {
                     value={values.firstName}
                     name="firstName"
                     error={!!touched.firstName && !!errors.firstName}
-                    helperText={touched.firstName && errors.firstName}
+                    helperText={
+                      touched.firstName && errors.firstName
+                        ? String(errors.firstName)
+                        : ""
+                    }
                   />
                   <TextField
                     fullWidth
@@ -157,7 +123,11 @@ const Form = () => {
                     value={values.lastName}
                     name="lastName"
                     error={!!touched.lastName && !!errors.lastName}
-                    helperText={touched.lastName && errors.lastName}
+                    helperText={
+                      touched.lastName && errors.lastName
+                        ? String(errors.lastName)
+                        : ""
+                    }
                   />
                   <TextField
                     fullWidth
@@ -169,59 +139,50 @@ const Form = () => {
                     value={values.email}
                     name="email"
                     error={!!touched.email && !!errors.email}
-                    helperText={touched.email && errors.email}
+                    helperText={
+                      touched.email && errors.email ? String(errors.email) : ""
+                    }
                     sx={{ gridColumn: "span 4" }}
                   />
-                  <Box sx={{ gridColumn: "span 4" }}>
-                    <DatePicker
-                      placeholder="Birthday"
-                      style={{ width: '100%' }}
-                      value={values.birthday} // Set the value from Formik
-                      onChange={(date) => handleChange({ target: { name: "birthday", value: date } })} // Update Formik value on date change
-                    />
-                    {touched.birthday && errors.birthday && (
-                      <div style={{ color: 'red' }}>{errors.birthday}</div>
-                    )}
-                  </Box>
-                  <Box sx={{ gridColumn: "span 4" }}>
-                    <Select
-                      placeholder="User Role"
-                      onBlur={handleBlur}
-                      onChange={(value) => {
-                        handleChange({ target: { name: "userRole", value } });
-                        handleBlur({ target: { name: "userRole" } }); // Trigger blur event
-                      }}
-                      value={values.userRole}
-                      style={{ width: '100%' }}
-                      status={touched.userRole && errors.userRole ? "error" : ""}
-                    >
-                      <Select.Option value="Student">Student</Select.Option>
-                      <Select.Option value="Tutor">Tutor</Select.Option>
-                      <Select.Option value="Admin">Admin</Select.Option>
-                    </Select>
-                    {touched.userRole && errors.userRole && (
-                      <div style={{ color: 'red' }}>{errors.userRole}</div>
-                    )}
-                  </Box>
-                  <Box sx={{ gridColumn: "span 4" }}>
-                    <Select
-                      placeholder="Gender"
-                      onBlur={handleBlur}
-                      onChange={(value) => {
-                        handleChange({ target: { name: "gender", value } });
-                        handleBlur({ target: { name: "gender" } }); // Trigger blur event
-                      }}
-                      value={values.gender}
-                      style={{ width: '100%' }}
-                      status={touched.gender && errors.gender ? "error" : ""}
-                    >
-                      <Select.Option value="Male">Male</Select.Option>
-                      <Select.Option value="Female">Female</Select.Option>
-                    </Select>
-                    {touched.gender && errors.gender && (
-                      <div style={{ color: 'red' }}>{errors.gender}</div>
-                    )}
-                  </Box>
+                  <TextField
+                    fullWidth
+                    variant="filled"
+                    type="date"
+                    label="Birthday"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    value={values.birthday.toISOString().split("T")[0]}
+                    name="birthday"
+                    error={!!touched.birthday && !!errors.birthday}
+                    helperText={
+                      touched.birthday && errors.birthday
+                        ? String(errors.birthday)
+                        : ""
+                    }
+                    InputLabelProps={{ shrink: true }}
+                    sx={{ gridColumn: "span 4" }}
+                  />
+                  <TextField
+                    fullWidth
+                    variant="filled"
+                    select
+                    label="User Role"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    value={values.userRole}
+                    name="userRole"
+                    error={!!touched.userRole && !!errors.userRole}
+                    helperText={
+                      touched.userRole && errors.userRole
+                        ? String(errors.userRole)
+                        : ""
+                    }
+                    sx={{ gridColumn: "span 4" }}
+                  >
+                    <MenuItem value="Student">Student</MenuItem>
+                    <MenuItem value="Tutor">Tutor</MenuItem>
+                    <MenuItem value="Admin">Admin</MenuItem>
+                  </TextField>
                 </Box>
                 <Box display="flex" justifyContent="end" mt="20px">
                   <Button type="submit" color="secondary" variant="contained">
@@ -237,28 +198,28 @@ const Form = () => {
   );
 };
 
-// Validation schema
+// Regular expression สำหรับเบอร์โทรศัพท์
+const phoneRegExp =
+  /^((\+[1-9]{1,4}[ -]?)|(\([0-9]{2,3}\)[ -]?)|([0-9]{2,4})[ -]?)*?[0-9]{3,4}[ -]?[0-9]{3,4}$/;
+
 const checkoutSchema = yup.object().shape({
   username: yup.string().required("Username is required"),
   password: yup.string().required("Password is required"),
   firstName: yup.string().required("First Name is required"),
   lastName: yup.string().required("Last Name is required"),
   email: yup.string().email("Invalid email").required("Email is required"),
-  birthday: yup.date().nullable().required("Birthday is required"),
-  userRole: yup.string().required("User Role is required"),
-  gender: yup.string().required("Gender is required"),
+  birthday: yup.date().required("Birthday is required"),
+  userRole: yup.string().required("User Role is required"), // เปลี่ยนเป็น string
 });
 
-// Initial values
 const initialValues: FormValues = {
   username: "",
   password: "",
   firstName: "",
   lastName: "",
   email: "",
-  birthday: null, // Start with null for moment
-  userRole: "Student",
-  gender: "",
+  birthday: new Date(),
+  userRole: "Student", // ใช้ค่าพื้นฐานที่เลือกได้
 };
 
 export default Form;

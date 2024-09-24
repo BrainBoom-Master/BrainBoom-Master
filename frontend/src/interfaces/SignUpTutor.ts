@@ -6,5 +6,8 @@ export interface SignupTutor extends UsersInterface, Tutor {
   
 }
 
+import { UserInterface } from "../../interfaces/UserInterface";
+import { ProfileInterface } from "../../interfaces/ProfileInterface";
+
 
 

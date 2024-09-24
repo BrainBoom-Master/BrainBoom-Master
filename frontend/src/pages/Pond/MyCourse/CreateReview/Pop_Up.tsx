@@ -18,7 +18,7 @@ interface ModalProps {
   onReviewSubmit: (courseId: number) => void; // ฟังก์ชันที่เรียกเมื่อรีวิวเสร็จ
 }
 
-const ModalCreate: React.FC<ModalProps> = ({
+const Modal: React.FC<ModalProps> = ({
   open,
   onClose,
   CourseID,
@@ -173,4 +173,4 @@ const ModalCreate: React.FC<ModalProps> = ({
   );
 };
 
-export default ModalCreate;
+export default Modal;

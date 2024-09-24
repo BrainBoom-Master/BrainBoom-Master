@@ -1,11 +1,10 @@
 import { Button, Card, Form, Input, message, Row, Col } from "antd";
 import { useNavigate } from "react-router-dom";
-import { SignIn , AddLoginHistory as LoginHistory } from "../../../services/https";
+import { SignIn } from "../../../services/https";
 import { SignInInterface } from "../../../interfaces/SignIn";
 import logo1 from "../../../assets/logo1.png";
 import pic1 from "../../../assets/pic1.png";
 import axios from "axios";
-
 
 function SignInPages() {
   const navigate = useNavigate();
@@ -23,14 +22,12 @@ function SignInPages() {
         console.log("id from response:", res.data.id);
         console.log("username from response:", res.data.username);
 
-        await LoginHistory(res.data.id);
         // แสดงข้อความสำเร็จ
         messageApi.success("Sign-in successful");
   
         // จัดเก็บข้อมูลลง localStorage
         // หลังจากล็อกอินสำเร็จ
-        console.log(res.data);
-        
+
         localStorage.setItem("isLogin", "true");
         localStorage.setItem("page", "dashboard");
         localStorage.setItem("token_type", res.data.token_type);
@@ -86,7 +83,7 @@ function SignInPages() {
         <Col xs={24} sm={12} md={12} lg={12} xl={12} style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
           <Card style={{ width: "70%",border: "none", }}>
           <p style={{ fontSize: "3rem" ,textAlign: "center", display: "block",  marginTop: "10px", fontFamily: "'Inter', sans-serif"  }}>Account Login</p>
-          <h5 style={{ textAlign: "center", display: "block",  marginTop: "10px", fontFamily: "'Inter', sans-serif"  }}>ถ้าคุณเป็นสมาชิกอยู่แล้วคุณสามารถเข้าสู่ระบบด้วยบัญชีผู้ใช้และรหัสผ่านของคุณได้</h5>
+          <h5 style={{ textAlign: "center", display: "block",  marginTop: "10px", fontFamily: "'Inter', sans-serif"  }}>ถ้าคุณเป็นสมาชิกอยู่แล้วคุณสามารถเข้าสู่ระบบด้วยอีเมลและรหัสผ่านของคุณได้</h5>
 
             <Form
               name="basic"
@@ -114,12 +111,12 @@ function SignInPages() {
                 <Input.Password />
               </Form.Item>
 
-              <Form.Item >
+              <Form.Item>
                 <Button
                   type="primary"
                   htmlType="submit"
                   className="login-form-button"
-                  style={{  width: '100%',marginBottom: 20 }}
+                  style={{ marginBottom: 20 }}
                 >
                   Log in
                 </Button>
