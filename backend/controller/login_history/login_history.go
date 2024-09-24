@@ -48,8 +48,8 @@ func GetLoginHistory(c *gin.Context) {
 }
 
 // ListUserLoginHistory ดึงข้อมูลประวัติการเข้าสู่ระบบของผู้ใช้
-func ListUserLoginHistory(c *gin.Context) {
-    userID := c.Param("user_id")
+func GetLoginHistoryByUserId(c *gin.Context) {
+    userID := c.Param("id")
     var loginHistories []entity.LoginHistories
 
     db := config.DB()

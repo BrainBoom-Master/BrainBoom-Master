@@ -48,10 +48,10 @@ func main() {
 		r.PUT("/tutor_profiles/:UserID", tutor_profiles.UpdateTutorProfile)  
 		//r.DELETE("/tutor_profiles/:UserID", tutor_profiles.DeleteTutorProfile) 
 		
-		r.POST("/login-history", login_history.CreateLoginHistory)
-    	r.GET("/login-history/:id", login_history.GetLoginHistory)
-    	r.GET("/login-history/user/:user_id", login_history.ListUserLoginHistory)
-    	r.DELETE("/login-history/:id", login_history.DeleteLoginHistory)
+		r.POST("/loginhistory", login_history.CreateLoginHistory)
+    	r.GET("/loginhistory/:id", login_history.GetLoginHistoryByUserId)
+    	//r.GET("/loginhistory/users/:UserID", login_history.ListUserLoginHistory)
+    	r.DELETE("/loginhistory/:id", login_history.DeleteLoginHistory)
 
 		// Course Routes By Pond
 		router.GET("/courses", course.ListCourse)

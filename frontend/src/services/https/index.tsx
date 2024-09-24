@@ -205,6 +205,15 @@ async function AddLoginHistory(userId: number) {
     .catch((e) => e.response);
 }
 
+async function GetLoginHistoryByUserId(userId: string) {
+  try {
+    const response = await axios.get(`${apiUrl}/loginhistory/${userId}`); // ส่งคำขอ GET เพื่อนำข้อมูลมาแสดง
+    return response;
+  } catch (error) {
+    console.error("Error fetching login history:", error);
+    throw error;
+  }
+}
 
 
 //Pond
@@ -693,6 +702,7 @@ export {
   UpdateTutorById,
   GetLoginHistory,
   AddLoginHistory,
+  GetLoginHistoryByUserId,
   //Course Pond
   GetCourses,
   CreateCourse,
