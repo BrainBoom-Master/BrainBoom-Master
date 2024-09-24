@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import HeaderComponent from '../../../../components/header';
-import { Typography, message, Select } from 'antd';
+import { Typography, message, Select, Button } from 'antd';
 const { Title } = Typography;
-import { Input, Button, Upload, UploadFile } from 'antd';
+import { Input, Upload, UploadFile } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
 const { TextArea } = Input;
 import { CourseInterface } from "../../../../interfaces/ICourse";
@@ -124,6 +124,10 @@ function Create() {
       console.error('Error creating course:', error);
       messageApi.error('เกิดข้อผิดพลาดในการสร้างหลักสูตร');
     }
+  };
+
+  const handleCancel = () => {
+    navigate('/tutor');
   };
 
   return (
@@ -252,31 +256,28 @@ function Create() {
               />
             </div>
             <div>
-              <Title level={5}>คำอธิบาย</Title>
+              <Title level={5}>คำบรรยาย</Title>
               <TextArea
-                placeholder="คำอธิบาย"
+                rows={4}
+                placeholder="คำบรรยาย"
                 name="Description"
                 value={formData.Description}
                 onChange={handleChange}
                 style={{
-                  padding: '12px 15px',
                   borderRadius: '8px',
                   fontSize: '16px',
-                  height: '150px',
-                  resize: 'vertical',
+                  boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.1)',
                 }}
               />
             </div>
             <div>
               <Title level={5}>เลือกหมวดหมู่</Title>
               <Select
-                placeholder="เลือกหมวดหมู่"
+                defaultValue = {0}
+                style={{ width: "100%" }}
                 onChange={handleCategoryChange}
-                style={{
-                  width: '100%',
-                  borderRadius: '8px',
-                }}
               >
+                <Select.Option value={0} disabled>เลือกหมวดหมู่</Select.Option>
                 {categories.map((category) => (
                   <Select.Option key={category.ID} value={category.ID}>
                     {category.CategoryName}
@@ -284,14 +285,14 @@ function Create() {
                 ))}
               </Select>
             </div>
-            <Button type="primary" onClick={handleSubmit} style={{
-              borderRadius: '8px',
-              fontSize: '16px',
-              padding: '10px 20px',
-              marginTop: '20px',
-            }}>
-              สร้างหลักสูตร
-            </Button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
+              <Button onClick={handleCancel} style={{ width: '200px', backgroundColor: '#D3AC2B', color: '#fff' }}>
+                ยกเลิก
+              </Button>
+              <Button type="primary" onClick={handleSubmit} style={{ width: '200px', backgroundColor: '#333D51', color: '#fff' }}>
+                สร้างหลักสูตร
+              </Button>
+            </div>
           </div>
         </div>
       </section>

@@ -16,6 +16,8 @@ function Edit() {
   const [categories, setCategories] = useState<CourseCategoryInterface[]>([]);
   const course = location.state?.course;
 
+  const [priceInput, setPriceInput] = useState<string>((course?.Price)?.toFixed(2));
+
   const GetCategory = async () => {
     try {
       const categories = await GetCourseCategories();
@@ -53,15 +55,13 @@ function Edit() {
     if (name === 'Price') {
       const regex = /^\d*\.?\d{0,2}$/;
       if (regex.test(value) || value === '') {
-        setFormData((prevData) => ({
-          ...prevData,
-          [name]: value ? parseFloat(value) : 0,
-        }));
+        setPriceInput(value);
       }
     } else if (name === 'Duration') {
+      const valueAsNumber = Number(value);
       setFormData((prevData) => ({
         ...prevData,
-        [name]: value ? parseInt(value, 10) : 0,
+        [name]: valueAsNumber >= 0 ? valueAsNumber : 0,
       }));
     } else {
       setFormData((prevData) => ({
@@ -105,7 +105,7 @@ function Edit() {
 
     const payload = {
       ...formData,
-      CourseCategoryID: formData.CourseCategoryID,
+      Price: parseFloat(priceInput) || 0,
     };
 
     if (!formData.Title || formData.Price <= 0 || formData.Duration <= 0 || formData.TeachingPlatform === '' || !formData.CourseCategoryID) {
@@ -127,6 +127,10 @@ function Edit() {
       console.error('Error editing course:', error);
       messageApi.error('เกิดข้อผิดพลาดในการแก้ไขหลักสูตร');
     }
+  };
+
+  const handleCancel = () => {
+    navigate('/tutor');
   };
 
   return (
@@ -207,7 +211,7 @@ function Edit() {
                 placeholder="ราคา"
                 name="Price"
                 type="text"
-                value={formData.Price.toString()}
+                value={priceInput}
                 onChange={handleChange}
                 style={{
                   padding: '12px 15px',
@@ -255,28 +259,28 @@ function Edit() {
               />
             </div>
             <div>
-              <Title level={5}>คำอธิบาย</Title>
+              <Title level={5}>คำบรรยาย</Title>
               <TextArea
-                placeholder="คำอธิบาย"
+                rows={4}
+                placeholder="คำบรรยาย"
                 name="Description"
                 value={formData.Description}
                 onChange={handleChange}
                 style={{
-                  padding: '12px 15px',
                   borderRadius: '8px',
                   fontSize: '16px',
-                  height: '150px',
-                  resize: 'vertical',
+                  boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.1)',
                 }}
               />
             </div>
             <div>
               <Title level={5}>เลือกหมวดหมู่</Title>
               <Select
-                placeholder="เลือกหมวดหมู่"
+                defaultValue = {course?.CourseCategoryID || 0}
+                style={{ width: "100%" }}
                 onChange={handleCategoryChange}
-                style={{ width: '100%' }}
               >
+                <Select.Option value={0} disabled>เลือกหมวดหมู่</Select.Option>
                 {categories.map((category) => (
                   <Select.Option key={category.ID} value={category.ID}>
                     {category.CategoryName}
@@ -284,22 +288,14 @@ function Edit() {
                 ))}
               </Select>
             </div>
-            <Button
-              type="primary"
-              onClick={handleSubmit}
-              style={{
-                padding: '12px 20px',
-                backgroundColor: '#333d51',
-                color: 'white',
-                borderRadius: '20px',
-                fontSize: '18px',
-                fontWeight: 'bold',
-                width: '150px',
-                height: '50px',
-              }}
-            >
-              ยืนยัน
-            </Button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
+              <Button onClick={handleCancel} style={{ width: '200px', backgroundColor: '#D3AC2B', color: '#fff' }}>
+                ยกเลิก
+              </Button>
+              <Button type="primary" onClick={handleSubmit} style={{ width: '200px', backgroundColor: '#333D51', color: '#fff' }}>
+                สร้างหลักสูตร
+              </Button>
+            </div>
           </div>
         </div>
       </section>
