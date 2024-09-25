@@ -762,7 +762,6 @@ async function GetTask() {
     .catch((e) => e.response);
 }
 // เพิ่มมาใหม่
-const apiUrlT = "http://localhost:8000/create-tasks";  // แก้ไขตาม URL ของ API
 
 export const createTask = async (task: Omit<Task, 'id'>): Promise<Task> => {
   try {

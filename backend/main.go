@@ -91,7 +91,7 @@ func main() {
 		router.GET("/total-paid",payment.GetTotalPaid)
 		router.GET("/recent-paid",payment.GetRecentTransactions)
 		router.GET("/courses-graph", course.GetGraphData)
-		router.POST("/create-user",users.CreateUser)
+		
 		//Create User By Pai
 		
 

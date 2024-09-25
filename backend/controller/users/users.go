@@ -186,53 +186,7 @@ func GetUserForStudent(c *gin.Context) {
 	})
 }
 
-func CreateUser(c *gin.Context) {
-    var user entity.Users
 
-    // ผูกข้อมูล JSON เข้ากับ struct user
-    if err := c.ShouldBindJSON(&user); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "ข้อมูลไม่ถูกต้อง"})
-        return
-    }
-
-    // ตรวจสอบข้อมูลผู้ใช้ที่ซ้ำซ้อน
-    db := config.DB()
-    var existingUser entity.Users
-    if err := db.Where("username = ?", user.Username).First(&existingUser).Error; err == nil {
-        c.JSON(http.StatusConflict, gin.H{"error": "ชื่อผู้ใช้มีอยู่แล้ว"})
-        return
-    }
-
-    // เข้ารหัสรหัสผ่านก่อนที่จะบันทึก
-    hashedPassword, err := config.HashPassword(user.Password)
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "ไม่สามารถเข้ารหัสรหัสผ่านได้"})
-        return
-    }
-    user.Password = hashedPassword // ตั้งรหัสผ่านเป็นรหัสผ่านที่เข้ารหัสแล้ว
-
-    // สร้างข้อมูลผู้ใช้ใหม่
-    newUser := entity.Users{
-        Username:   user.Username,
-        Password:   user.Password, // รหัสผ่านที่เข้ารหัสแล้ว
-        Email:      user.Email,
-        FirstName:  user.FirstName,
-        LastName:   user.LastName,
-        Birthday:   user.Birthday, // ตรวจสอบว่า Birthday เป็นรูปแบบที่ถูกต้อง
-        Profile:    user.Profile,
-        UserRoleID: user.UserRoleID,
-        GenderID:   user.GenderID,
-    }
-
-    // บันทึกข้อมูลผู้ใช้ลงในฐานข้อมูล
-    if err := db.Create(&newUser).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "ไม่สามารถสร้างผู้ใช้ได้"})
-        return
-    }
-
-    // ส่งข้อความสำเร็จและข้อมูลผู้ใช้กลับไป (ไม่รวมรหัสผ่าน)
-    c.JSON(http.StatusCreated, gin.H{"message": "สร้างผู้ใช้สำเร็จ", "user": newUser})
-}
 
 
 
