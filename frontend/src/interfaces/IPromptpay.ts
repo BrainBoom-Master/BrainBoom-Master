@@ -1,5 +1,5 @@
 export interface PromptPayInterface {
   ID?: number;
   UserID?: number;
-  PhoneNumber?: string;
+  PromptPayNumber?: string;
 }

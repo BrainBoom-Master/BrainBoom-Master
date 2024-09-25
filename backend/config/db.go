@@ -415,34 +415,34 @@ func SetupDatabase() error {
 
 	promptpay1 := &entity.PromptPays{
 		UserID: &puid2,
-		PhoneNumber: phonenum1,
+		PromptPayNumber: phonenum1,
 	}
 
 	promptpay2 := &entity.PromptPays{
 		UserID: &puid2,
-		PhoneNumber: phonenum2,
+		PromptPayNumber: phonenum2,
 	}
 
 	promptpay3 := &entity.PromptPays{
 		UserID: &puid2,
-		PhoneNumber: phonenum3,
+		PromptPayNumber: phonenum3,
 	}
 
 	promptpay4 := &entity.PromptPays{
 		UserID: &puid2,
-		PhoneNumber: phonenum4,
+		PromptPayNumber: phonenum4,
 	}
 
 	promptpay5 := &entity.PromptPays{
 		UserID: &puid2,
-		PhoneNumber: phonenum5,
+		PromptPayNumber: phonenum5,
 	}
 
-	db.FirstOrCreate(&promptpay1, &entity.PromptPays{PhoneNumber: promptpay1.PhoneNumber})
-	db.FirstOrCreate(&promptpay2, &entity.PromptPays{PhoneNumber: promptpay2.PhoneNumber})
-	db.FirstOrCreate(&promptpay3, &entity.PromptPays{PhoneNumber: promptpay3.PhoneNumber})
-	db.FirstOrCreate(&promptpay4, &entity.PromptPays{PhoneNumber: promptpay4.PhoneNumber})
-	db.FirstOrCreate(&promptpay5, &entity.PromptPays{PhoneNumber: promptpay5.PhoneNumber})
+	db.FirstOrCreate(&promptpay1, &entity.PromptPays{PromptPayNumber: promptpay1.PromptPayNumber})
+	db.FirstOrCreate(&promptpay2, &entity.PromptPays{PromptPayNumber: promptpay2.PromptPayNumber})
+	db.FirstOrCreate(&promptpay3, &entity.PromptPays{PromptPayNumber: promptpay3.PromptPayNumber})
+	db.FirstOrCreate(&promptpay4, &entity.PromptPays{PromptPayNumber: promptpay4.PromptPayNumber})
+	db.FirstOrCreate(&promptpay5, &entity.PromptPays{PromptPayNumber: promptpay5.PromptPayNumber})
 
 	payment1 := &entity.Payments{
 		Amount: 1999,

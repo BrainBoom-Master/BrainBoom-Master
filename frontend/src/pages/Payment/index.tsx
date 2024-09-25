@@ -60,6 +60,12 @@ const useStyle = createStyles(({ prefixCls, css }) => ({
     `,
 }));
 
+const textErrorStyle = {
+  color: "red",
+  marginBottom: "5px",
+  paddingLeft: "11px",
+};
+
 const { Content } = Layout;
 
 function Payment() {
@@ -82,7 +88,9 @@ function Payment() {
   const [promptPayNumber, setpromptPayNumber] = useState("");
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
-  const [error, setError] = useState("");
+  const [errorCardNumber, setErrorCardNumber] = useState(false);
+  const [errorCVC, setErrorCVC] = useState(false);
+  const [errorExpiry, setErrorExpiry] = useState("");
   // const [uploadError, setUploadError] = useState<boolean>(false);
   // const [uploadSuccess, setUploadSuccess] = useState<boolean>(false);
   // const [uploadedImage, setUploadedImage] = useState<string | null>(null);
@@ -111,16 +119,16 @@ function Payment() {
     const yearNumber = parseInt(newYear, 10);
 
     if (newMonth && (monthNumber < 1 || monthNumber > 12)) {
-      setError("Invalid month!");
+      setErrorExpiry("เดือนไม่ถูกต้อง");
       return false;
     }
 
     if (newYear && yearNumber < currentYear) {
-      setError("Invalid year!");
+      setErrorExpiry("ปีไม่ถูกต้อง");
       return false;
     }
 
-    setError("");
+    setErrorExpiry("");
     return true;
   };
 
@@ -135,7 +143,7 @@ function Payment() {
 
   const [promptpayData, setPromptpayData] = useState<PromptPayInterface>({
     UserID: user_id,
-    PhoneNumber: "",
+    PromptPayNumber: "",
   });
 
   const [paymentData, setPaymentData] = useState<PaymentsInterface>({
@@ -173,6 +181,8 @@ function Payment() {
 
   const handleCardNumberChange = (e: { target: { value: string } }) => {
     const inputValue = e.target.value.replace(/[^\d]/g, ""); // เอาเฉพาะตัวเลข
+    if (inputValue.length <= 16)
+      setErrorCardNumber(inputValue.length < 16 && inputValue.length > 0);
     setRawValue(inputValue); // เก็บค่าที่เป็นตัวเลขอย่างเดียว
     setFormattedValue(formatNumber(inputValue)); // เก็บค่าที่จัดรูปแบบแล้ว
   };
@@ -180,8 +190,9 @@ function Payment() {
   const handleCvcChange = (e: { target: { value: string } }) => {
     const inputValue = e.target.value.replace(/[^\d]/g, ""); // only digits
     if (inputValue.length <= 3) {
-      setCvc(inputValue);
+      setErrorCVC(inputValue.length < 3 && inputValue.length > 0);
     }
+    setCvc(inputValue);
   };
 
   const handleMethodChange = (method: string) => {
@@ -202,6 +213,7 @@ function Payment() {
 
   const handleCheckout = async () => {
     if (paymentMethod === "CreditCard") {
+      const checkCVC = cvc;
       const newCreditCardData = {
         ...creditCardData,
         CardNumber: rawValue,
@@ -216,7 +228,11 @@ function Payment() {
         newCreditCardData.CardNumber === "" ||
         newCreditCardData.ExpirationMonth === "" ||
         newCreditCardData.ExpirationYear === "" ||
-        newCreditCardData.CardHolderName === ""
+        newCreditCardData.CardHolderName === "" ||
+        newCreditCardData.CardNumber.length < 16 ||
+        newCreditCardData.ExpirationMonth.length < 2 ||
+        newCreditCardData.ExpirationYear.length < 2 ||
+        checkCVC.length < 3
       ) {
         messageApi.error("กรุณากรอกข้อมูลให้ครบถ้วน");
         return;
@@ -245,6 +261,7 @@ function Payment() {
 
           await CreatePayment(newPaymentCreditCardData);
           messageApi.success("บันทึกการชำระเงินเรียบร้อยแล้ว");
+          handlePaymentClick();
         } else {
           messageApi.error("ไม่สามารถสร้างบัตรเครดิตได้");
         }
@@ -255,13 +272,19 @@ function Payment() {
     } else if (paymentMethod === "PromptPay") {
       const newPromptPayData = {
         ...promptpayData,
-        PhoneNumber: promptPayNumber,
+        PromptPayNumber: promptPayNumber,
       };
       setPromptpayData(newPromptPayData);
       console.log(newPromptPayData);
 
-      if (newPromptPayData.PhoneNumber === "") {
-        messageApi.error("กรุณากรอกข้อมูลให้ครบถ้วน");
+      if (
+        newPromptPayData.PromptPayNumber === "" ||
+        (newPromptPayData.PromptPayNumber.length !== 10 &&
+          newPromptPayData.PromptPayNumber.length !== 13)
+      ) {
+        messageApi.error(
+          "หมายเลขพร้อมเพย์ต้องมีความยาว 10 หรือ 13 หลักเท่านั้น"
+        );
         return;
       }
 
@@ -285,8 +308,9 @@ function Payment() {
 
           await CreatePayment(newPaymentPromptPayData);
           messageApi.success("บันทึกการชำระเงินเรียบร้อยแล้ว");
+          handlePaymentClick();
         } else {
-          messageApi.error("ไม่สามารถสร้างบัตรเครดิตได้");
+          messageApi.error("ไม่สามารถสร้างพร้อมเพย์ได้");
         }
       } catch (error) {
         console.error("Error creating promptpay or payment:", error);
@@ -529,6 +553,11 @@ function Payment() {
                       style={{ marginBottom: "10px" }}
                       maxLength={19}
                     />
+                    {errorCardNumber && (
+                      <p style={textErrorStyle}>
+                        กรุณากรอกเลขบัตรให้ครบ 16 หลัก
+                      </p>
+                    )}
                     <Row gutter={8} style={{ marginBottom: "10px" }}>
                       <Col span={12}>
                         <Input
@@ -538,16 +567,8 @@ function Payment() {
                           maxLength={7}
                           size="large"
                         />
-                        {error && (
-                          <p
-                            style={{
-                              color: "red",
-                              marginBottom: "5px",
-                              paddingLeft: "11px",
-                            }}
-                          >
-                            {error}
-                          </p>
+                        {errorExpiry && (
+                          <p style={textErrorStyle}>{errorExpiry}</p>
                         )}
                       </Col>
                       <Col span={12}>
@@ -558,6 +579,9 @@ function Payment() {
                           size="large"
                           maxLength={3}
                         />
+                        {errorCVC && (
+                          <p style={textErrorStyle}>กรุณากรอก CVC ให้ครบถ้วน</p>
+                        )}
                       </Col>
                     </Row>
                     <Input
@@ -709,9 +733,6 @@ function Payment() {
                   </span>
                 </div>
                 <div
-                  onClick={() => {
-                    handlePaymentClick();
-                  }}
                   style={{
                     display: "flex",
                     justifyContent: "space-between",
