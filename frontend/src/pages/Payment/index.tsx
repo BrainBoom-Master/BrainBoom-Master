@@ -8,15 +8,15 @@ import {
   Col,
   ConfigProvider,
   message,
+  //Upload,
 } from "antd";
+//import jsQR from "jsqr";
 import { useState } from "react";
 import HeaderComponent from "../../components/header";
-import { CreditCardOutlined } from "@ant-design/icons";
+import { CreditCardOutlined /*UploadOutlined*/ } from "@ant-design/icons";
 import { createStyles } from "antd-style";
 import PromptPayIcon from "../../components/Max/PromptPayIcon";
 import PromptPayQRCode from "../../components/Max/PromptPayQRCode";
-//import ExpiryDateInput from "../../components/Max/ExpiryDateInput";
-//import { GetPriceById, GetTitleById } from "../../services/https";
 import { useLocation, useNavigate } from "react-router-dom";
 import { PaymentsInterface } from "../../interfaces/IPayment";
 import { CreditCardInterface } from "../../interfaces/ICreditCard";
@@ -63,6 +63,8 @@ const useStyle = createStyles(({ prefixCls, css }) => ({
 const { Content } = Layout;
 
 function Payment() {
+  const recipientNumber = "0631456442";
+
   const location = useLocation();
   const navigate = useNavigate();
   const course = location.state?.course;
@@ -81,6 +83,10 @@ function Payment() {
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
   const [error, setError] = useState("");
+  // const [uploadError, setUploadError] = useState<boolean>(false);
+  // const [uploadSuccess, setUploadSuccess] = useState<boolean>(false);
+  // const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  // const [canvasImage, setCanvasImage] = useState<string | null>(null);
 
   const formatExpiryDate = (value: string) => {
     const cleanedValue = value.replace(/[^\d]/g, "");
@@ -289,9 +295,144 @@ function Payment() {
     }
   };
 
-  const handleCourseClick = () => {
-    navigate(`/course/${course.id}`, { state: { course } });
+  const handlePaymentClick = () => {
+    setTimeout(() => {
+      navigate(`/course/${course.id}`, { state: { course } });
+    }, 1000);
   };
+
+  // const handleImageUpload = (file: File) => {
+  //   const reader = new FileReader();
+  //   reader.onload = (e: ProgressEvent<FileReader>) => {
+  //     const img = new Image();
+  //     img.src = e.target?.result as string;
+  //     setUploadedImage(URL.createObjectURL(file));
+
+  //     img.onload = () => {
+  //       const canvas = document.createElement("canvas");
+  //       const ctx = canvas.getContext("2d");
+  //       if (!ctx) {
+  //         message.error("ไม่สามารถสร้าง canvas context ได้");
+  //         return;
+  //       }
+
+  //       // ปรับขนาด canvas ให้เท่ากับขนาดภาพ
+  //       canvas.width = img.width;
+  //       canvas.height = img.height;
+
+  //       // วาดภาพลงบน canvas
+  //       ctx.drawImage(img, 0, 0, img.width, img.height);
+
+  //       // ดึงข้อมูลภาพ
+  //       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+  //       // ปรับปรุงภาพ
+  //       const enhancedImageData = enhanceImage(imageData);
+
+  //       // อ่าน QR Code
+  //       const qrCode = jsQR(
+  //         enhancedImageData.data,
+  //         canvas.width,
+  //         canvas.height
+  //       );
+  //       console.log(qrCode);
+
+  //       if (qrCode) {
+  //         const parsedData = parseQRCode(qrCode.data);
+  //         console.log(parsedData);
+
+  //         if (verifyQRCode(parsedData)) {
+  //           setUploadSuccess(true);
+  //           setUploadError(false);
+  //           message.success("สลิปถูกต้อง");
+  //         } else {
+  //           setUploadSuccess(false);
+  //           setUploadError(true);
+  //           message.error("ตรวจสอบสลิปไม่สำเร็จ");
+  //         }
+  //       } else {
+  //         setUploadSuccess(false);
+  //         setUploadError(true);
+  //         message.error("ไม่พบ QR Code ในภาพ");
+  //       }
+
+  //       // แสดงภาพที่ปรับปรุงแล้ว (ตัวอย่าง)
+  //       ctx.putImageData(enhancedImageData, 0, 0);
+  //       const canvasURL = canvas.toDataURL();
+  //       setCanvasImage(canvasURL);
+  //     };
+  //   };
+  //   reader.readAsDataURL(file);
+  // };
+
+  // const enhanceImage = (imageData: ImageData): ImageData => {
+  //   const data = imageData.data;
+
+  //   // แปลงเป็น grayscale และเพิ่มความคมชัด
+  //   for (let i = 0; i < data.length; i += 4) {
+  //     const r = data[i];
+  //     const g = data[i + 1];
+  //     const b = data[i + 2];
+
+  //     // แปลงเป็น grayscale
+  //     const gray = Math.round(0.299 * r + 0.587 * g + 0.114 * b);
+
+  //     // เพิ่มความคมชัด (ตัวอย่างง่ายๆ)
+  //     const enhanced = Math.min(255, Math.max(0, gray * 1.5 - 30));
+
+  //     // Threshold (ทำให้เป็นขาวดำสมบูรณ์)
+  //     const threshold = enhanced > 128 ? 255 : 0;
+
+  //     data[i] = threshold;
+  //     data[i + 1] = threshold;
+  //     data[i + 2] = threshold;
+  //   }
+
+  //   return imageData;
+  // };
+
+  // const verifyQRCode = (parsedData: {
+  //   amount: string;
+  //   promptPayNumber: string;
+  // }): boolean => {
+  //   const { amount, promptPayNumber } = parsedData;
+
+  //   // ตรวจสอบว่าราคาตรงกับราคาคอร์สหรือไม่
+  //   const isPriceMatch = parseFloat(amount) === course.Price;
+
+  //   // ตรวจสอบว่า PromptPay Number ตรงกับหมายเลขที่ระบบกำหนดหรือไม่
+  //   const isPromptPayMatch = promptPayNumber === recipientNumber;
+
+  //   return isPriceMatch && isPromptPayMatch;
+  // };
+
+  // const parseQRCode = (
+  //   qrData: string
+  // ): { amount: string; promptPayNumber: string } => {
+  //   const parsedData: { [key: string]: string } = {};
+
+  //   // ฟังก์ชันสำหรับการแยกข้อมูลในรูปแบบ Tag-Length-Value
+  //   const parseTLV = (data: string) => {
+  //     let i = 0;
+  //     while (i < data.length) {
+  //       const tag = data.slice(i, i + 2); // Tag เช่น 00, 54
+  //       const length = parseInt(data.slice(i + 2, i + 4)); // Length ของข้อมูล
+  //       const value = data.slice(i + 4, i + 4 + length); // ข้อมูลจริง (Value)
+
+  //       parsedData[tag] = value;
+  //       i += 4 + length; // ไปยังตำแหน่งถัดไป
+  //     }
+  //   };
+
+  //   // เรียกฟังก์ชันเพื่อแยกข้อมูล
+  //   parseTLV(qrData);
+
+  //   // ดึงข้อมูลที่ต้องการออกมา
+  //   const amount = parsedData["54"] || "0.00"; // Tag 54 คือจำนวนเงิน
+  //   const promptPayNumber = parsedData["29"] || ""; // Tag 29 คือหมายเลข PromptPay
+
+  //   return { amount, promptPayNumber };
+  // };
 
   return (
     <>
@@ -454,10 +595,33 @@ function Payment() {
                     {(promptPayNumber.length === 10 ||
                       promptPayNumber.length === 13) && (
                       <PromptPayQRCode
-                        mobileNumber="0631456442"
+                        mobileNumber={recipientNumber}
                         amount={course.Price}
                       />
                     )}
+
+                    {/* <Upload
+                      accept="image/*"
+                      showUploadList={false}
+                      beforeUpload={(file) => {
+                        handleImageUpload(file);
+                        return false; // ไม่อัปโหลดโดยตรง
+                      }}
+                    >
+                      <Button icon={<UploadOutlined />}>อัปโหลดสลิป</Button>
+                    </Upload>
+
+                    {uploadError && (
+                      <p style={{ color: "red" }}>ตรวจสอบสลิปไม่สำเร็จ</p>
+                    )}
+                    {uploadSuccess && (
+                      <p style={{ color: "green" }}>สลิปถูกต้อง</p>
+                    )}
+                    <div>
+                      {canvasImage && (
+                        <img src={canvasImage} alt="Canvas Output" />
+                      )}
+                    </div> */}
                   </div>
                 )}
 
@@ -546,20 +710,36 @@ function Payment() {
                 </div>
                 <div
                   onClick={() => {
-                    handleCourseClick();
+                    handlePaymentClick();
+                  }}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginBottom: "20px",
                   }}
                 >
+                  <Button
+                    onClick={() => navigate(-1)}
+                    size="large"
+                    style={{
+                      width: "48%",
+                      fontWeight: "bold",
+                    }}
+                    danger
+                  >
+                    ยกเลิก
+                  </Button>
                   <Button
                     type="primary"
                     onClick={handleCheckout}
                     size="large"
                     style={{
-                      width: "100%",
+                      width: "48%",
                       fontWeight: "bold",
                       backgroundColor: "rgba(211,172,43,0.85)",
                     }}
                   >
-                    Complete Checkout
+                    ชำระเงิน
                   </Button>
                 </div>
               </Card>
