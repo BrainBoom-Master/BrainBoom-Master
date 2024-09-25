@@ -24,8 +24,8 @@ const SearchCourse = Loadable(lazy(() => import("../pages/Pond/Search/index")));
 
 //Admin
 const MainDashboard = Loadable(lazy(() => import("../pages/Pai/Dashboard/dashboard")));
-const AdminTutor = Loadable(lazy(() => import("../pages/Pai/tutor/Tutor")));
-const AdminCourse = Loadable(lazy(() => import("../pages/Pai/course/Course")));
+//const AdminTutor = Loadable(lazy(() => import("../pages/Pai/tutor/Tutor")));
+//const AdminCourse = Loadable(lazy(() => import("../pages/Pai/course/Course")));
 const AdminCalender= Loadable(lazy(() => import("../pages/Pai/calendar/Calendar")));
 const AdminCreateUser= Loadable(lazy(() => import("../pages/Pai/createUser/CreateUser")));
 
@@ -54,14 +54,14 @@ const AdminRoutes = (isLoggedIn: boolean): RouteObject => {
         path: "/dashboard",
         element: isLoggedIn ? (userRoleId ===  1? <MainDashboard /> : <MainCourse />) : <MainPages />,
       },
-      { // ปาย
-        path: "tutorAdmin", 
-        element: isLoggedIn ? <AdminTutor /> : <MainPages />,
-      },
-      { // ปาย
-        path: "courseAdmin", 
-        element: isLoggedIn ? <AdminCourse /> : <MainPages />,
-      },
+      //{ // ปาย
+        //path: "tutorAdmin", 
+        //element: isLoggedIn ? <AdminTutor /> : <MainPages />,
+      //},
+      //{ // ปาย
+        //path: "courseAdmin", 
+        //element: isLoggedIn ? <AdminCourse /> : <MainPages />,
+      //},
       { // ปาย
         path: "calendarAdmin", 
         element: isLoggedIn ? <AdminCalender /> : <MainPages />,

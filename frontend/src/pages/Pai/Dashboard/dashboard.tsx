@@ -109,8 +109,8 @@ const Dashboard: React.FC = () => {
               <StatBox
                 title={totalTutors ? totalTutors.toString() : "N/A"}
                 subtitle="Tutor"
-                progress={0.75}
-                increase="+14%"
+                progress={0.0}
+                increase=""
                 icon={<EmailIcon sx={{ color: colors.greenAccent[600], fontSize: "26px" }} />}
               />
             )}
@@ -131,7 +131,7 @@ const Dashboard: React.FC = () => {
                 title={totalCourses ? totalCourses.toString() : "N/A"}
                 subtitle="Courses"
                 progress={0.0}
-                increase="+0%"
+                increase=""
                 icon={<PointOfSaleIcon sx={{ color: colors.greenAccent[600], fontSize: "26px" }} />}
               />
             )}
@@ -151,8 +151,8 @@ const Dashboard: React.FC = () => {
               <StatBox
                 title={totalStudents ? totalStudents.toString() : "N/A"}
                 subtitle="Student"
-                progress={0.3}
-                increase="+5%"
+                progress={0.0}
+                increase=""
                 icon={<PersonAddIcon sx={{ color: colors.greenAccent[600], fontSize: "26px" }} />}
               />
             )}
@@ -172,8 +172,8 @@ const Dashboard: React.FC = () => {
               <StatBox
                 title={totalPaid ? `฿ ${totalPaid.toFixed(2)}` : "N/A"}
                 subtitle="Profit"
-                progress={0.8}
-                increase="+43%"
+                progress={0}
+                increase=""
                 icon={<TrafficIcon sx={{ color: colors.greenAccent[600], fontSize: "26px" }} />}
               />
             )}
