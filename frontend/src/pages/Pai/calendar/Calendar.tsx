@@ -1,14 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import {
-  EventApi,
   DateSelectArg,
   EventClickArg,
   EventInput,
   formatDate,
 } from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
-import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
 import {
@@ -19,45 +17,132 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
+import { Modal, Input, message } from "antd"; 
 import Header from "../../../components/Pai/Header";
 import { tokens } from "../../../theme";
-import React from "react";
-import { Button, notification } from "antd";
+import { GetTask, createTask, deleteTask } from "../../../services/https";
 import Headerside from "../../Pai/ADD/Header";
 import HeaderandSidebar from "../../Pai/ADD/Sidebar";
-import "../Dashboard/apptest.css"
+import "../Dashboard/apptest.css";
+import { Task } from "../../../interfaces/ITask";
 
 const Calendar = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const [currentEvents, setCurrentEvents] = useState<EventApi[]>([]);
+  const [currentEvents, setCurrentEvents] = useState<EventInput[]>([]);
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const [modalTitle, setModalTitle] = useState<string>("");
+  const [selectedDate, setSelectedDate] = useState<DateSelectArg | null>(null);
+  const [eventToDelete, setEventToDelete] = useState<EventClickArg | null>(null);
 
-  // ฟังก์ชันจัดการเมื่อคลิกเลือกวันที่ในปฏิทิน
+  // ฟังก์ชันสำหรับดึงข้อมูล tasks
+  const fetchTasks = async () => {
+    try {
+      const response = await GetTask();
+      if (response && response.data) {
+        const events: EventInput[] = response.data.map(
+          (task: { title: string; start_date: string; id?: number }) => ({
+            id: task.id || task.title,
+            title: task.title,
+            start: new Date(task.start_date),
+            allDay: true,
+          })
+        );
+        setCurrentEvents(events);
+      }
+    } catch (error) {
+      message.error("Failed to load tasks");
+    }
+  };
+
+  // ใช้ useEffect เพื่อเรียก fetchTasks เมื่อ component ติดตั้ง
+  useEffect(() => {
+    fetchTasks();
+
+    const interval = setInterval(() => {
+      fetchTasks(); // ดึงข้อมูลทุกๆ 5 วินาที
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // เปิด Modal เมื่อเลือกวันที่
   const handleDateClick = (selected: DateSelectArg) => {
-    const title = prompt("Please enter a new title for your event");
-    const calendarApi = selected.view.calendar;
-    calendarApi.unselect();
+    setSelectedDate(selected);
+    setIsModalVisible(true);
+  };
 
-    if (title) {
-      calendarApi.addEvent({
-        id: `${selected.startStr}-${title}`,
-        title,
-        start: selected.startStr,
-        end: selected.endStr,
-        allDay: selected.allDay,
-      });
+  // ฟังก์ชันจัดการการสร้างภารกิจ
+  const handleCreateTask = async () => {
+    if (!modalTitle.trim()) {
+      message.warning("Please enter a title for the event.");
+      return;
+    }
+
+    const calendarApi = selectedDate?.view.calendar;
+    if (!calendarApi) return;
+
+    const newTask: Omit<Task, "id"> = {
+      title: modalTitle,
+      startDate: new Date(selectedDate!.startStr),
+      endDate: new Date(selectedDate!.endStr || selectedDate!.startStr),
+      allDay: selectedDate!.allDay,
+      userId: 1, // ตัวอย่าง userId, สามารถทำให้เป็น dynamic ได้
+    };
+
+    try {
+      const result = await createTask(newTask);
+
+      if (result) {
+        calendarApi.addEvent({
+          id: result.id.toString(),
+          title: result.title,
+          start: result.startDate,
+          end: result.endDate,
+          allDay: result.allDay,
+        });
+
+        setCurrentEvents((prev) => [
+          ...prev,
+          {
+            id: result.id.toString(),
+            title: result.title,
+            start: result.startDate,
+            end: result.endDate,
+            allDay: result.allDay,
+          },
+        ]);
+
+        // ดึงข้อมูลใหม่หลังจากสร้าง Task สำเร็จ
+        fetchTasks();
+      }
+    } finally {
+      message.success("Event created successfully!");
+      setIsModalVisible(false);
+      setModalTitle("");
     }
   };
 
   // ฟังก์ชันจัดการเมื่อคลิกที่เหตุการณ์ในปฏิทิน
   const handleEventClick = (selected: EventClickArg) => {
-    if (
-      window.confirm(
-        `Are you sure you want to delete the event '${selected.event.title}'`
-      )
-    ) {
-      selected.event.remove();
-    }
+    setEventToDelete(selected);
+    Modal.confirm({
+      title: `Are you sure you want to delete the event '${selected.event.title}'?`,
+      onOk: async () => {
+        try {
+          await deleteTask(Number(selected.event.id));
+          selected.event.remove();
+          message.success("Event deleted successfully!");
+          // ดึงข้อมูลใหม่หลังจากลบ Task สำเร็จ
+          fetchTasks();
+        } catch (error) {
+          message.error("Failed to delete the event. Please try again.");
+        }
+      },
+      onCancel() {
+        console.log("Cancel");
+      },
+    });
   };
 
   const [openSidebarToggle, setOpenSidebarToggle] = useState<boolean>(false);
@@ -74,16 +159,8 @@ const Calendar = () => {
         OpenSidebar={OpenSidebar}
       />
       <Box sx={{ width: "80vw", height: "70vh", m: "20px" }}>
-        {" "}
-        {/* ใช้ 100vw และ 100vh สำหรับความกว้างและความสูง */}
         <Header title="Calendar" subtitle="Full Calendar Interactive Page" />
-        <Box
-          display="flex"
-          justifyContent="space-between"
-          sx={{ height: "100%" }}
-        >
-          {" "}
-          {/* ตั้งค่า container ให้สูง 100% */}
+        <Box display="flex" justifyContent="space-between" sx={{ height: "100%" }}>
           {/* CALENDAR SIDEBAR */}
           <Box
             flex="1 1 20%"
@@ -92,11 +169,13 @@ const Calendar = () => {
               p: "15px",
               borderRadius: "4px",
               height: "100%",
-            }} // Sidebar สูงเต็มจอ
+              maxHeight: "600px",
+              overflowY: "auto",
+            }}
           >
             <Typography variant="h5">Events</Typography>
             <List>
-              {currentEvents.map((event) => (
+              {currentEvents.map((event: EventInput) => (
                 <ListItem
                   key={event.id}
                   sx={{
@@ -125,20 +204,13 @@ const Calendar = () => {
           </Box>
           {/* CALENDAR */}
           <Box flex="1 1 80%" ml="15px" sx={{ height: "100%" }}>
-            {" "}
-            {/* ปรับ Calendar ให้เต็มความสูง */}
             <FullCalendar
-              height="100%" // ตั้งค่า Calendar ให้สูงเต็มพื้นที่
-              plugins={[
-                dayGridPlugin,
-                timeGridPlugin,
-                interactionPlugin,
-                listPlugin,
-              ]}
+              height="100%"
+              plugins={[dayGridPlugin, interactionPlugin, listPlugin]}
               headerToolbar={{
                 left: "prev,next today",
                 center: "title",
-                right: "dayGridMonth,timeGridWeek,timeGridDay,listMonth",
+                right: "dayGridMonth,listMonth", // เพิ่มปุ่มสำหรับการแสดงผลในรูปแบบรายการ
               }}
               initialView="dayGridMonth"
               editable={true}
@@ -147,25 +219,27 @@ const Calendar = () => {
               dayMaxEvents={true}
               select={handleDateClick}
               eventClick={handleEventClick}
-              eventsSet={(events) => setCurrentEvents(events)}
-              initialEvents={
-                [
-                  {
-                    id: "12315",
-                    title: "All-day event",
-                    date: "2022-09-14",
-                  },
-                  {
-                    id: "5123",
-                    title: "Timed event",
-                    date: "2022-09-28",
-                  },
-                ] as EventInput[]
-              }
+              events={currentEvents}
+              datesSet={fetchTasks} // อัปเดตข้อมูลเมื่อเปลี่ยนมุมมอง
+              initialEvents={currentEvents}
             />
           </Box>
         </Box>
       </Box>
+
+      {/* Modal สำหรับกรอกชื่อภารกิจ */}
+      <Modal
+        title="Create a new event"
+        visible={isModalVisible}
+        onOk={handleCreateTask}
+        onCancel={() => setIsModalVisible(false)}
+      >
+        <Input
+          value={modalTitle}
+          onChange={(e) => setModalTitle(e.target.value)}
+          placeholder="Enter event title"
+        />
+      </Modal>
     </div>
   );
 };

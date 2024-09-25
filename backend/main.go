@@ -81,9 +81,9 @@ func main() {
 		//Admin By Pai
 		router.GET("/tasks", tasks.ListTasks)
         router.GET("/tasks/:id", tasks.GetTaskById)
-        router.POST("/tasks", tasks.CreateTask)
+        router.POST("/create-tasks", tasks.CreateTask)
         router.PUT("/tasks/:id", tasks.UpdateTask)
-        router.DELETE("/tasks/:id", tasks.DeleteTask)
+        router.DELETE("/delete-tasks/:id", tasks.DeleteTask)
 		router.GET("/course", course.ListCourse)
         router.GET("/course-count", course.CountCourses)
 		router.GET("/tutor-count",users.GetUserForTutor)

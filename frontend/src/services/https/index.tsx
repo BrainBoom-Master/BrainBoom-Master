@@ -5,7 +5,8 @@ import { CourseInterface } from "../../interfaces/ICourse";
 import { ReviewInterface } from "../../interfaces/IReview";
 import { PaymentsInterface } from "../../interfaces/IPayment";
 import { Tutor as TutorInterface } from "../../interfaces/Tutor";
-import { ErrorMessage } from "formik";
+import { Task } from "../../interfaces/ITask";
+
 
 
 const apiUrl = "http://localhost:8000";
@@ -17,7 +18,6 @@ const getAuthHeader = () => {
   const tokenType = localStorage.getItem("token_type") || "Bearer"; // ตรวจสอบว่ามี token_type หรือไม่ หากไม่มีให้ใช้ Bearer เป็นค่า default
   return token ? `${tokenType} ${token}` : null;
 };
-
 // ฟังก์ชันสำหรับการล็อกอิน
 async function SignIn(data: SignInInterface) {
   return await axios
@@ -749,6 +749,39 @@ async function CreateUser(userData: UsersInterface) {
     }
   }
 }
+//--ปาย เพิ่มมาใหม่
+async function GetTask() {
+  return await axios
+    .get(`${apiUrl}/tasks`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: getAuthHeader(), // ส่ง Authorization Header ในคำขอ
+      },
+    })
+    .then((res) => res)
+    .catch((e) => e.response);
+}
+// เพิ่มมาใหม่
+const apiUrlT = "http://localhost:8000/create-tasks";  // แก้ไขตาม URL ของ API
+
+export const createTask = async (task: Omit<Task, 'id'>): Promise<Task> => {
+  try {
+    const response = await axios.post<Task>(`${apiUrl}/create-tasks`, task);
+    return response.data;
+  } catch (error) {
+    throw new Error('Error creating task: ' + error);
+  }
+};
+
+export const deleteTask = async (taskId: number): Promise<void> => {
+  try {
+    const response = await axios.delete<void>(`${apiUrl}/delete-tasks/${taskId}`);
+    return response.data;
+  } catch (error) {
+    throw new Error('Error deleting task: ' + error);
+  }
+};
+
 
 
 
@@ -898,5 +931,7 @@ export {
   GetTotalStudent,
   GetTotalPaid,
   GetRecentTransactions,
-  GetDataGraph
+  GetDataGraph,
+  GetTask,
+  
 };

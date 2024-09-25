@@ -317,8 +317,16 @@ func SetupDatabase() error {
 		AllDay:    true,
 		UserID:    &uid1,
 	}
+	task3 := &entity.Tasks{
+		Title:     "Swimming",
+		StartDate: time.Now().AddDate(0, 0, 2), 
+		EndDate:   time.Now().AddDate(0, 0, 5), 
+		AllDay:    true,
+		UserID:    &uid1,
+	}
 	db.FirstOrCreate(task1, &entity.Tasks{Title: task1.Title})
 	db.FirstOrCreate(task2, &entity.Tasks{Title: task2.Title})
+	db.FirstOrCreate(task3, &entity.Tasks{Title: task3.Title})
 
 	puid1 := uint(2)
 	puid2 := uint(3)
