@@ -78,7 +78,7 @@ const Dashboard: React.FC = () => {
       <HeaderandSidebar openSidebarToggle={openSidebarToggle} OpenSidebar={OpenSidebar} />
       <Box
         sx={{
-          width: "85vw",
+          width: "83vw",
           height: "100vh",
           padding: "10px",
           backgroundColor: colors.primary[600],
