@@ -116,9 +116,9 @@ const ModalEdit: React.FC<ModalProps> = ({
         if (res.data.Picture) {
           setFileList([
             {
-              uid: '-1',
-              name: 'profile.png', // หรือชื่อไฟล์ที่เหมาะสม
-              status: 'done',
+              uid: "-1",
+              name: "profile.png", // หรือชื่อไฟล์ที่เหมาะสม
+              status: "done",
               url: res.data.Picture, // ใช้ URL ของรูปโปรไฟล์ที่มีอยู่
             },
           ]);
@@ -127,7 +127,6 @@ const ModalEdit: React.FC<ModalProps> = ({
     };
     GetMemberid();
   }, [reviewId, form]);
-  
 
   return ReactDOM.createPortal(
     <>
@@ -177,14 +176,16 @@ const ModalEdit: React.FC<ModalProps> = ({
               name="Comment"
               rules={[{ required: true, message: "กรุณากรอกความคิดเห็น!" }]}
             >
-              <Input.TextArea rows={4} />
+              <Input.TextArea rows={4} style={{ width: "400px" }} />
             </Form.Item>
-            <Button className="button-close" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button loading={loading} type="primary" htmlType="submit">
-              Submit
-            </Button>
+            <Form.Item className="box-button-reviews">
+              <Button className="button-close" onClick={onClose}>
+                Cancel
+              </Button>
+              <Button loading={loading} type="primary" htmlType="submit" style={{ marginLeft: "8px" }}>
+                Submit
+              </Button>
+            </Form.Item>
           </Form>
         </div>
       </div>

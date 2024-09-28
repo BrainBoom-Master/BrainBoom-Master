@@ -82,8 +82,7 @@ async function GetUserById(id: string) {
 }
 
 async function GetUserByTutorId(id: string) {
-  return await axios
-    .get(`${apiUrl}/users/tutor/${id}`, {
+  return await axios.get(`${apiUrl}/users/tutor/${id}`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: getAuthHeader(), // ส่ง Authorization Header ในคำขอ

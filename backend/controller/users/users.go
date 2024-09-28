@@ -48,57 +48,32 @@ func GetUserById(c *gin.Context) {
 }
 
 func GetUserByTutorId(c *gin.Context) {
-    // ดึงค่า ID จากพารามิเตอร์ URL (c.Param) ที่ส่งมาพร้อม request
     ID := c.Param("id")
-
-    // ประกาศตัวแปร user เพื่อนำมาเก็บข้อมูลของตาราง users
     var user entity.Users
-
-    // ประกาศตัวแปร tutor เพื่อนำมาเก็บข้อมูลของตาราง tutor_profiles
     var tutor entity.TutorProfiles
-
-    // เรียกใช้ฐานข้อมูลจากการตั้งค่าใน config (config.DB()) 
     db := config.DB()
-
-    // สร้าง query SQL เพื่อดึงข้อมูลจากตาราง tutor_profiles โดยเลือกตาม id ที่ได้รับมา
     tutorQuery := `SELECT * FROM tutor_profiles WHERE id = ? LIMIT 1`
-
-    // รันคำสั่ง SQL (db.Raw) และนำผลลัพธ์มาสแกนเข้าในตัวแปร tutor
     result := db.Raw(tutorQuery, ID).Scan(&tutor)
-
-    // ตรวจสอบว่ามี error เกิดขึ้นจากการดึงข้อมูลหรือไม่
     if result.Error != nil {
-        // หากมี error ให้ส่ง response กลับไปพร้อมสถานะ http.StatusNotFound และข้อความ error
+       
         c.JSON(http.StatusNotFound, gin.H{"error": result.Error.Error()})
         return
     }
-
-    // สร้าง query SQL เพื่อดึงข้อมูลจากตาราง users โดยใช้ค่า userID จาก tutor ที่ดึงมาได้
     userQuery := `SELECT * FROM users WHERE id = ? LIMIT 1`
-
-    // รันคำสั่ง SQL (db.Raw) และนำผลลัพธ์มาสแกนเข้าในตัวแปร user
     result = db.Raw(userQuery, tutor.UserID).Scan(&user)
 
-    // ตรวจสอบว่ามี error เกิดขึ้นจากการดึงข้อมูลหรือไม่
     if result.Error != nil {
-        // หากมี error ให้ส่ง response กลับไปพร้อมสถานะ http.StatusNotFound และข้อความ error
+       
         c.JSON(http.StatusNotFound, gin.H{"error": result.Error.Error()})
         return
     }
-
-    // ตรวจสอบว่าค่า user.ID มีค่าเป็น 0 หรือไม่ (หมายถึงไม่พบ user)
     if user.ID == 0 {
-        // หากไม่พบ user ให้ส่ง response พร้อมสถานะ http.StatusNoContent และข้อความบอกว่าไม่พบ user
+   
         c.JSON(http.StatusNoContent, gin.H{"message": "User not found"})
         return
     }
-
-    // หากพบข้อมูล user ให้ส่งข้อมูลกลับไปพร้อมสถานะ http.StatusOK
     c.JSON(http.StatusOK, user)
 }
-
-
-
 
 
 func Update(c *gin.Context) {

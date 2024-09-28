@@ -108,7 +108,7 @@ const Review: React.FC = () => {
               <div className="text-product">
                 <strong>ชื่อ : {payment.Course.Title}</strong>
                 <br />
-                Tutor ID : {user?.Username}
+                Tutor : {user?.Username}
                 <div className="button-open">
                   {hasReviewed[payment.CourseID!] ? (
                     <button
