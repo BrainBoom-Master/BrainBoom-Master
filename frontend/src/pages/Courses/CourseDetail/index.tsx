@@ -15,7 +15,7 @@ function CourseDetail() {
   const location = useLocation();
   const course = location.state?.course;
   const userID = Number(localStorage.getItem('id')) || 0;
-  const [cheackPayments, setCheackPayments] = useState<number>();
+  const [checkPayments, setCheckPayments] = useState<number>();
 
   const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -29,15 +29,12 @@ function CourseDetail() {
       setIsModalVisible(true);
   };
 
-  const CheackPayment = async (courseID: number) => {
+  const CheckPayment = async (courseID: number) => {
     try {
       const paymentsData = await GetPaymentByIdCourseAndIdUser(courseID, userID);
       
-      if (paymentsData && Array.isArray(paymentsData)) {
-        setCheackPayments(1);
-      } else {
-        setCheackPayments(0);
-      }
+      setCheckPayments(Array.isArray(paymentsData) ? 1 : 0);
+
     } catch (error) {
       console.error(`Error fetching payments for course ${courseID}:`, error);
     }
@@ -45,7 +42,7 @@ function CourseDetail() {
   
   useEffect(() => {
     if (course.ID) {
-      CheackPayment(course.ID); 
+      CheckPayment(course.ID); 
     }
   });
 
@@ -163,7 +160,7 @@ useEffect(() => {
               >
                 {course.Price?.toFixed(2) || "0.00"} Bath
               </Text>
-              { cheackPayments === 1 ? (
+              { checkPayments === 1 ? (
                 <div key={course.ID}>
                   <Button
                     type="primary"
