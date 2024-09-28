@@ -1,14 +1,14 @@
-import { Box, Button, IconButton, Typography, useTheme } from "@mui/material";
+import { Box, IconButton, Typography, useTheme } from "@mui/material";
 import { tokens } from "../../../theme";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import EmailIcon from "@mui/icons-material/Email";
 import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import TrafficIcon from "@mui/icons-material/Traffic";
-import Header from "../../Pai/ADD/Header";
-import HeaderandSidebar from "../../Pai/ADD/Sidebar";
-import LineChart from "../../../components/Pai/LineChart";
-import StatBox from "../../../components/Pai/StatBox";
+import Header from "../ADD/Header";
+import HeaderandSidebar from "../ADD/Sidebar";
+import LineChart from "../../../components/Chart/LineChart";
+import StatBox from "../../../components/Chart/StatBox";
 import { GetTotalCourse, GetTotalStudent, GetTotalTutor, GetTotalPaid, GetRecentTransactions } from "../../../services/https";
 import React, { useEffect, useState } from "react";
 import "./apptest.css";
@@ -56,7 +56,7 @@ const Dashboard: React.FC = () => {
       setLoading(true);
       await fetchData(GetTotalCourse, setTotalCourses, "total_courses");
       await fetchData(GetTotalTutor, setTotalTutors, "count");
-      await fetchData(GetTotalStudent, setTotalStudents, "total_students");
+      await fetchData(GetTotalStudent, setTotalStudents, "count");
       await fetchData(GetTotalPaid, setTotalPaid, "total_paid");
 
       // Fetch recent transactions
@@ -109,8 +109,8 @@ const Dashboard: React.FC = () => {
               <StatBox
                 title={totalTutors ? totalTutors.toString() : "N/A"}
                 subtitle="Tutor"
-                progress={0.75}
-                increase="+14%"
+                progress={0.0}
+                increase=""
                 icon={<EmailIcon sx={{ color: colors.greenAccent[600], fontSize: "26px" }} />}
               />
             )}
@@ -129,9 +129,9 @@ const Dashboard: React.FC = () => {
             ) : (
               <StatBox
                 title={totalCourses ? totalCourses.toString() : "N/A"}
-                subtitle="Courses Obtained"
+                subtitle="Courses"
                 progress={0.0}
-                increase="+0%"
+                increase=""
                 icon={<PointOfSaleIcon sx={{ color: colors.greenAccent[600], fontSize: "26px" }} />}
               />
             )}
@@ -151,8 +151,8 @@ const Dashboard: React.FC = () => {
               <StatBox
                 title={totalStudents ? totalStudents.toString() : "N/A"}
                 subtitle="Student"
-                progress={0.3}
-                increase="+5%"
+                progress={0.0}
+                increase=""
                 icon={<PersonAddIcon sx={{ color: colors.greenAccent[600], fontSize: "26px" }} />}
               />
             )}
@@ -172,8 +172,8 @@ const Dashboard: React.FC = () => {
               <StatBox
                 title={totalPaid ? `฿ ${totalPaid.toFixed(2)}` : "N/A"}
                 subtitle="Profit"
-                progress={0.8}
-                increase="+43%"
+                progress={0}
+                increase=""
                 icon={<TrafficIcon sx={{ color: colors.greenAccent[600], fontSize: "26px" }} />}
               />
             )}

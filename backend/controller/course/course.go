@@ -318,7 +318,7 @@ type DataPoints struct {
 }
 
 // GET /courses/graph - Retrieve graph data from the database
-func GetGraphData(c *gin.Context) { // go
+func GetGraphData(c *gin.Context) {
 	db := config.DB()
 
 	// สร้างโครงสร้างเก็บข้อมูล

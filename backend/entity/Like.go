@@ -3,7 +3,7 @@ package entity
 import"gorm.io/gorm"
 
 
-type Like struct {
+type Likes struct {
 	gorm.Model
 	UserID   uint  `gorm:"uniqueIndex:user_review_unique"`
 	ReviewID *uint `gorm:"uniqueIndex:user_review_unique"`

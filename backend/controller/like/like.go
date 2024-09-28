@@ -23,7 +23,7 @@ func LikeReview(c *gin.Context) {
 		return
 	}
 
-	var existingLike entity.Like
+	var existingLike entity.Likes
 	err := db.Where("user_id = ? AND review_id = ?", input.UserID, input.ReviewID).First(&existingLike).Error
 
 	if err == nil {
@@ -32,14 +32,14 @@ func LikeReview(c *gin.Context) {
 	}
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		newLike := entity.Like{UserID: input.UserID, ReviewID: &input.ReviewID}
+		newLike := entity.Likes{UserID: input.UserID, ReviewID: &input.ReviewID}
 		if err := db.Create(&newLike).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 
 		var likeCount int64
-		db.Model(&entity.Like{}).Where("review_id = ?", input.ReviewID).Count(&likeCount)
+		db.Model(&entity.Likes{}).Where("review_id = ?", input.ReviewID).Count(&likeCount)
 
 		c.JSON(http.StatusOK, gin.H{"message": "กด Like รีวิวเรียบร้อย", "likeCount": likeCount})
 		return
@@ -55,12 +55,12 @@ func CheckUserLikeStatus(c *gin.Context) {
 
 	db := config.DB()
 
-	var like entity.Like
+	var like entity.Likes
 	err := db.Where("user_id = ? AND review_id = ?", userID, reviewID).First(&like).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			var likeCount int64
-			db.Model(&entity.Like{}).Where("review_id = ?", reviewID).Count(&likeCount)
+			db.Model(&entity.Likes{}).Where("review_id = ?", reviewID).Count(&likeCount)
 
 			c.JSON(http.StatusOK, gin.H{"hasLiked": false, "likeCount": likeCount})
 		} else {
@@ -70,7 +70,7 @@ func CheckUserLikeStatus(c *gin.Context) {
 	}
 
 	var likeCount int64
-	db.Model(&entity.Like{}).Where("review_id = ?", reviewID).Count(&likeCount)
+	db.Model(&entity.Likes{}).Where("review_id = ?", reviewID).Count(&likeCount)
 
 	c.JSON(http.StatusOK, gin.H{"hasLiked": true, "likeCount": likeCount})
 }
@@ -88,13 +88,13 @@ func UnlikeReview(c *gin.Context) {
 		return
 	}
 
-	if err := db.Where("user_id = ? AND review_id = ?", input.UserID, input.ReviewID).Delete(&entity.Like{}).Error; err != nil {
+	if err := db.Where("user_id = ? AND review_id = ?", input.UserID, input.ReviewID).Delete(&entity.Likes{}).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	var likeCount int64
-	db.Model(&entity.Like{}).Where("review_id = ?", input.ReviewID).Count(&likeCount)
+	db.Model(&entity.Likes{}).Where("review_id = ?", input.ReviewID).Count(&likeCount)
 
 	c.JSON(http.StatusOK, gin.H{"message": "ยกเลิก Like รีวิวเรียบร้อย", "likeCount": likeCount})
 }

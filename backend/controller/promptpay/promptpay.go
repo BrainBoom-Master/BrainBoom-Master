@@ -29,7 +29,7 @@ func CreatePromptPay(c *gin.Context) {
 
 	newPromptPay := entity.PromptPays{
 		UserID: promptpay.UserID,
-		PhoneNumber: promptpay.PhoneNumber,
+		PromptPayNumber: promptpay.PromptPayNumber,
 	}
 
 	db := config.DB()

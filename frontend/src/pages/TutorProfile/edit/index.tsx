@@ -61,7 +61,7 @@ function EditTutor() {
 
     if (res.status === 200) {
       messageApi.open({ type: "success", content: res.data.message });
-      setTimeout(() => navigate(`/tutor_profiles/users/${UserID}`), 2000);
+      setTimeout(() => navigate(`/tutor_profiles`), 2000);
     } else {
       messageApi.open({ type: "error", content: res.data.error });
     }

@@ -1,8 +1,6 @@
 import React from 'react';
 import {
   BsGrid1X2Fill,
-  BsFillArchiveFill,
-  BsFillGrid3X3GapFill,
   BsCalendarFill,
   BsFillPersonPlusFill,
 } from 'react-icons/bs';
@@ -48,16 +46,7 @@ const Sidebar: React.FC<SidebarProps> = ({ openSidebarToggle, OpenSidebar }) => 
             <BsGrid1X2Fill className='icon' /> Dashboard
           </Link>
         </li>
-        <li className='sidebar-list-item'>
-          <Link to="/tutorAdmin">
-            <BsFillArchiveFill className='icon' /> Tutor
-          </Link>
-        </li>
-        <li className='sidebar-list-item'>
-          <Link to="/courseAdmin">
-            <BsFillGrid3X3GapFill className='icon' /> Course
-          </Link>
-        </li>
+       
         <li className='sidebar-list-item'>
           <Link to="/calendarAdmin">
             <BsCalendarFill className='icon' /> Calendar

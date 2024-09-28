@@ -9,7 +9,7 @@ interface LineChartProps {
   isDashboard?: boolean;
 }
 
-const LineChart: React.FC<LineChartProps> = ({ isCustomLineColors = false, isDashboard = false }) => {
+const LineChart: React.FC<LineChartProps> = ({  isDashboard = false }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [data, setData] = useState<Serie[]>([]);

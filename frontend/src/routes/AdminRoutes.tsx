@@ -14,21 +14,19 @@ const MyProfile = Loadable(lazy(() => import("../pages/TutorProfile/myprofile"))
 const LoginHistory = Loadable(lazy(() => import("../pages/User/loginhistory")));
 
 //Course
-const MainCourse = Loadable(lazy(() => import("../pages/Pond/Course/index")));
-const CourseDetails = Loadable(lazy(() => import("../pages/Pond/CourseDetail/index")));
-const MyCourses = Loadable(lazy(() => import("../pages/Pond/MyCourse/index")));
-const TutorCourse = Loadable(lazy(() => import("../pages/Pond/Tutor/index")));
-const CourseDetailsTutor = Loadable(lazy(() => import("../pages/Pond/Tutor/CourseDetail/index")));
-const EditCourse = Loadable(lazy(() => import("../pages/Pond/Tutor/Edit/index")));
-const CreateCourse = Loadable(lazy(() => import("../pages/Pond/Tutor/Create/index")));
-const SearchCourse = Loadable(lazy(() => import("../pages/Pond/Search/index")));
+const MainCourse = Loadable(lazy(() => import("../pages/Courses/Course/index")));
+const CourseDetails = Loadable(lazy(() => import("../pages/Courses/CourseDetail/index")));
+const MyCourses = Loadable(lazy(() => import("../pages/Courses/MyCourse/index")));
+const TutorCourse = Loadable(lazy(() => import("../pages/Courses/Tutor/index")));
+const CourseDetailsTutor = Loadable(lazy(() => import("../pages/Courses/Tutor/CourseDetail/index")));
+const EditCourse = Loadable(lazy(() => import("../pages/Courses/Tutor/Edit/index")));
+const CreateCourse = Loadable(lazy(() => import("../pages/Courses/Tutor/Create/index")));
+const SearchCourse = Loadable(lazy(() => import("../pages/Courses/Search/index")));
 
 //Admin
-const MainDashboard = Loadable(lazy(() => import("../pages/Pai/Dashboard/dashboard")));
-const AdminTutor = Loadable(lazy(() => import("../pages/Pai/tutor/Tutor")));
-const AdminCourse = Loadable(lazy(() => import("../pages/Pai/course/Course")));
-const AdminCalender= Loadable(lazy(() => import("../pages/Pai/calendar/Calendar")));
-const AdminCreateUser= Loadable(lazy(() => import("../pages/Pai/createUser/CreateUser")));
+const MainDashboard = Loadable(lazy(() => import("../pages/Admins/Dashboard/dashboard")));
+const AdminCalender= Loadable(lazy(() => import("../pages/Admins/calendar/Calendar")));
+const AdminCreateUser= Loadable(lazy(() => import("../pages/Admins/createUser/CreateUser")));
 
 //Payment
 const MainPayment = Loadable(lazy(() => import("../pages/Payment/index")));
@@ -54,14 +52,6 @@ const AdminRoutes = (isLoggedIn: boolean): RouteObject => {
       {
         path: "/dashboard",
         element: isLoggedIn ? (userRoleId ===  1? <MainDashboard /> : <MainCourse />) : <MainPages />,
-      },
-      { // ปาย
-        path: "tutorAdmin", 
-        element: isLoggedIn ? <AdminTutor /> : <MainPages />,
-      },
-      { // ปาย
-        path: "courseAdmin", 
-        element: isLoggedIn ? <AdminCourse /> : <MainPages />,
       },
       { // ปาย
         path: "calendarAdmin", 

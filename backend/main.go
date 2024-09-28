@@ -89,9 +89,9 @@ func main() {
 		//Admin By Pai
 		router.GET("/tasks", tasks.ListTasks)
         router.GET("/tasks/:id", tasks.GetTaskById)
-        router.POST("/tasks", tasks.CreateTask)
+        router.POST("/create-tasks", tasks.CreateTask)
         router.PUT("/tasks/:id", tasks.UpdateTask)
-        router.DELETE("/tasks/:id", tasks.DeleteTask)
+        router.DELETE("/delete-tasks/:id", tasks.DeleteTask)
 		router.GET("/course", course.ListCourse)
         router.GET("/course-count", course.CountCourses)
 		router.GET("/tutor-count",users.GetUserForTutor)
@@ -99,13 +99,10 @@ func main() {
 		router.GET("/total-paid",payment.GetTotalPaid)
 		router.GET("/recent-paid",payment.GetRecentTransactions)
 		router.GET("/courses-graph", course.GetGraphData)
-		router.POST("/create-user",users.CreateUserByAdmin)
 
 		//Payment By Mac
 		router.GET("/payments/user/:userID", payment.GetPaymentByIdUser) // ตะวันใช้เรียกดู user in MyCourse 
 		router.GET("/payments", payment.ListPayments)
-		router.GET("/course-price/:id", payment.GetCoursePrice)
-		router.GET("/course-title/:id", payment.GetCourseName)
 		router.GET("/promptpays", promptpay.ListPromptPays)
 		router.GET("/creditcards", creditcard.ListCreditCards)
 		router.GET("/paymentmethods", paymentmethod.ListPaymentMethods)

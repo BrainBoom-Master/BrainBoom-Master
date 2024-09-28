@@ -19,5 +19,5 @@ type Reviews struct {
     CourseID     *uint
     Course       Courses `gorm:"foreignKey:CourseID"`
 
-    Like []Like `gorm:"foreignKey:ReviewID"`
+    Like []Likes `gorm:"foreignKey:ReviewID"`
 }

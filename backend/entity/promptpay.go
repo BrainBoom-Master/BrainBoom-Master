@@ -12,7 +12,7 @@ type PromptPays struct {
 	 UserID *uint
 	 User   Users  `gorm:"foreignKey:UserID"`
 	 
-	 PhoneNumber string
+	 PromptPayNumber string
 
 	 // 1 promptpay มีได้หลาย payment
 	 Payments []Payments `gorm:"foreignKey:PromptPayID"`
