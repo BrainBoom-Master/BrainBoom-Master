@@ -275,7 +275,7 @@ func SetupDatabase() error {
 	for i := 1; i <= 10; i++ {
 		course := &entity.Courses{
 			Title:            fmt.Sprintf("Course %d", i),
-			ProfilePicture:   "", // ค่าเริ่มต้นจะถูกกำหนดในภายหลัง
+			ProfilePicture:   "",
 			Price:            float32(1999 + i*100),
 			TeachingPlatform: "Online",
 			Description:      fmt.Sprintf("This course provides comprehensive content on various topics. Course number %d.", i),

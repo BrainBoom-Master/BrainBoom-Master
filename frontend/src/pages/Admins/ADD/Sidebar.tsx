@@ -33,7 +33,11 @@ const Sidebar: React.FC<SidebarProps> = ({ openSidebarToggle, OpenSidebar }) => 
   };
 
   return (
-    <aside id="sidebar" className={openSidebarToggle ? "sidebar-responsive" : ""}>
+    <aside id="sidebar" className={openSidebarToggle ? "sidebar-responsive" : ""} 
+      style={{
+        height:"100%"
+      }}  
+    >
       <div className='sidebar-title'>
         <div className='sidebar-brand'>
           <img src={LogoImage} alt="Brand Logo" className='brand-logo' />

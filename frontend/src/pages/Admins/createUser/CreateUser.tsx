@@ -17,7 +17,7 @@ const FormCreate = () => {
   };
 
   const onFinish = async (values: UsersInterface) => {
-    let res = await CreateUserByAdmin(values);
+    const res = await CreateUserByAdmin(values);
     if (res.success) {
       messageApi.open({
         type: "success",
@@ -37,8 +37,14 @@ const FormCreate = () => {
   return (
     <>
       {contextHolder}
-      <Row style={{ width: "100vw", height: "100vh", backgroundColor: "#FFFF" }}>
-        <Col>
+      <Row style={{ width: "100%", height: "100vh", backgroundColor: "#FFFF" , flexDirection:"column",}}>
+        <Col
+        xs={24}
+        sm={24}
+        md={24}
+        lg={24}
+        xl={24} 
+        >
           <Sidebar openSidebarToggle={openSidebarToggle} OpenSidebar={OpenSidebar} />
         </Col>
 
