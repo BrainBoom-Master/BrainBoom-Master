@@ -133,7 +133,7 @@ function Course() {
         }}>
 
           {courses.length > 0 ? (
-            courses.map((course: CourseInterface) => (
+            courses.slice(0, 10).map((course: CourseInterface) => (
               <div key={course.ID} onClick={() => handleCourseClick(course)}>
                 <Card
                   hoverable
