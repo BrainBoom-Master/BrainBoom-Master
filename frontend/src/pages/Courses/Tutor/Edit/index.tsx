@@ -293,7 +293,7 @@ function Edit() {
                 ยกเลิก
               </Button>
               <Button type="primary" onClick={handleSubmit} style={{ width: '200px', backgroundColor: '#333D51', color: '#fff' }}>
-                สร้างหลักสูตร
+                แก้ไขหลักสูตร
               </Button>
             </div>
           </div>
