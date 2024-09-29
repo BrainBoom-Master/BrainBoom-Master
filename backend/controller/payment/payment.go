@@ -96,7 +96,7 @@ func CreatePayment(c *gin.Context) {
 			return
 	}
 
-	c.JSON(http.StatusOK, payment)
+	c.JSON(http.StatusCreated, payment)
 }
 
 // GET /total-paid

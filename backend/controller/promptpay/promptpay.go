@@ -40,7 +40,7 @@ func CreatePromptPay(c *gin.Context) {
 			return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
+	c.JSON(http.StatusCreated, gin.H{
 		"message":      "promptpay created successfully",
 		"promptpayId": newPromptPay.ID, // ส่ง ID ของ PromptPay ที่เพิ่งบันทึกไป
 	})

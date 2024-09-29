@@ -18,7 +18,7 @@ function Course() {
   const [reviews, setReviews] = useState<{ [courseID: number]: ReviewInterface[] }>({});
   const [averageRatings, setAverageRatings] = useState<{ [courseID: number]: number }>({});
   const [error] = useState<string | null>(null);
-  const [user, setUser] = useState<UsersInterface>();
+  const [users, setUsers] = useState<{ [tutorProfileID: number]: UsersInterface | undefined }>({});
 
   const navigate = useNavigate();
 
@@ -88,25 +88,25 @@ function Course() {
     }
   }, [courses]);
 
-  const getUser = async (tutorProfileID: string) => {
+  const getUser = async (tutorProfileID: number) => {
     try {
-        const UserData = await GetUserByTutorId(tutorProfileID);
-        setUser(UserData.data);
+      const UserData = await GetUserByTutorId(tutorProfileID.toString());
+      setUsers((prevUsers) => ({ ...prevUsers, [tutorProfileID]: UserData.data }));
     } catch (error) {
-        console.error(`Unknown User`, error);
+      console.error(`Unknown User for TutorProfileID: ${tutorProfileID}`, error);
     }
   };
-  
 
   useEffect(() => {
-    if (courses.length > 0 && !user) {
-        const tutorProfileID = courses[0].TutorProfileID;
-        
-        if (tutorProfileID !== undefined) {
-            getUser(tutorProfileID.toString());
+    if (courses.length > 0) {
+      courses.forEach((course) => {
+        const tutorProfileID = course.TutorProfileID;
+        if (tutorProfileID && !users[tutorProfileID]) {
+          getUser(tutorProfileID);
         }
+      });
     }
-  }, [courses, user]);
+  }, [courses, users]);
 
 
   if (loading) return <p>Loading...</p>;
@@ -159,7 +159,7 @@ function Course() {
                     border: "1px solid #ddd",
                   }}
                 >
-                  <Meta title={course.Title} description={`Tutor: ${user?.Username ?? "ไม่ระบุ"}`} />
+                  <Meta title={course.Title} description={`Tutor: ${users[course.TutorProfileID || 0]?.Username ?? "ไม่ระบุ"}`} />
                   <div style={{ 
                     marginTop: "5px", 
                     display: "flex", 
@@ -256,7 +256,7 @@ function Course() {
                           border: "1px solid #ddd",
                         }}
                       >
-                        <Meta title={course.Title} description={`Tutor: ${user?.Username ?? "ไม่ระบุ"}`} />   
+                        <Meta title={course.Title} description={`Tutor: ${users[course.TutorProfileID || 0]?.Username ?? "ไม่ระบุ"}`} />   
                         <div style={{ 
                           marginTop: "5px", 
                           display: "flex", 

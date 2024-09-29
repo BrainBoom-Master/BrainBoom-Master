@@ -71,7 +71,7 @@ func CreateCreditCard(c *gin.Context) {
 	}
 
 	// ส่งข้อมูล CreditCardID กลับไปใน response
-	c.JSON(http.StatusOK, gin.H{
+	c.JSON(http.StatusCreated, gin.H{
 		"message":      "credit card created successfully",
 		"creditCardId": creditcard.ID, // ส่ง ID ของบัตรเครดิตที่เพิ่งบันทึกไป
 	})

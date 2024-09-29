@@ -32,7 +32,7 @@ function SearchCourse() {
   const [categoryID, setCategoryID] = useState<number | undefined>();
   const setCateID = location.state?.categoryID;
 
-  const [user, setUser] = useState<UsersInterface>();
+  const [users, setUsers] = useState<{ [tutorProfileID: number]: UsersInterface | undefined }>({});
 
   const handleCourseClick = (course: CourseInterface) => {
     navigate(`/course/${course.ID}`, { state: { course } });
@@ -172,25 +172,25 @@ function SearchCourse() {
     }
   };
 
-  const getUser = async (tutorProfileID: string) => {
+  const getUser = async (tutorProfileID: number) => {
     try {
-        const UserData = await GetUserByTutorId(tutorProfileID);
-        setUser(UserData.data);
+      const UserData = await GetUserByTutorId(tutorProfileID.toString());
+      setUsers((prevUsers) => ({ ...prevUsers, [tutorProfileID]: UserData.data }));
     } catch (error) {
-        console.error(`Unknown User`, error);
+      console.error(`Unknown User for TutorProfileID: ${tutorProfileID}`, error);
     }
   };
-  
 
   useEffect(() => {
-    if (courses.length > 0 && !user) {
-        const tutorProfileID = courses[0].TutorProfileID;
-        
-        if (tutorProfileID !== undefined) {
-            getUser(tutorProfileID.toString());
+    if (courses.length > 0) {
+      courses.forEach((course) => {
+        const tutorProfileID = course.TutorProfileID;
+        if (tutorProfileID && !users[tutorProfileID]) {
+          getUser(tutorProfileID);
         }
+      });
     }
-  }, [courses, user]);
+  }, [courses, users]);
 
   return (
     <>
@@ -273,7 +273,7 @@ function SearchCourse() {
                       border: "1px solid #ddd",
                     }}
                   >
-                    <Meta title={course.Title} description={`Tutor: ${user?.Username ?? "ไม่ระบุ"}`} />
+                    <Meta title={course.Title} description={`Tutor: ${users[course.TutorProfileID || 0]?.Username ?? "ไม่ระบุ"}`}/>
                     <div
                       style={{
                         marginTop: "5px",
