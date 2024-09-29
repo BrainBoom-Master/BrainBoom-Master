@@ -163,9 +163,9 @@ function Course() {
                   <div style={{ 
                     marginTop: "5px", 
                     display: "flex", 
-                    alignItems: "center", 
-                    fontSize: "12px", 
-                    gap: "5px" 
+                    alignItems: "center",
+                    fontSize: "12px",
+                    gap: "5px"
                   }}>
                     <Star size={15} weight="fill" style={{ color: "#ffcc00" }} />
                     <span>

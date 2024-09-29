@@ -740,6 +740,7 @@ const fetchLikeStatus = async (
 const onLikeButtonClick = async (
   reviewID: number,
   userID: number
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<any | false> => {
   try {
     const response = await fetch(`${apiUrl}/reviews/like`, {
@@ -959,6 +960,7 @@ const deleteTask = async (taskId: number): Promise<void> => {
 };
 
 // Payment By Max ตะวันใช้ดึงข้อมูล user มารีวิว in MyCourse
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function GetPaymentByIdUser(userID: number): Promise<any> {
   const requestOptions = {
     method: "GET",
@@ -1144,6 +1146,7 @@ export {
   DeleteUserById,
   CreateUser,
   UpdatePasswordById,
+  // eslint-disable-next-line react-refresh/only-export-components
   loginService,
   GetTutorProfileByUserId,
   GetTutors,
@@ -1163,8 +1166,11 @@ export {
   GetFilteredReviews,
   SearchReviewsByKeyword,
   GetRatingsAvgByCourseID,
+  // eslint-disable-next-line react-refresh/only-export-components
   getReviewsByCourseID,
+  // eslint-disable-next-line react-refresh/only-export-components
   fetchLikeStatus,
+  // eslint-disable-next-line react-refresh/only-export-components
   onLikeButtonClick,
   //Course Pond
   GetCourses,
@@ -1178,6 +1184,7 @@ export {
   GetCourseByTutorID,
   SearchCourseByKeyword,
   DeleteCourseByID,
+  // eslint-disable-next-line react-refresh/only-export-components
   onUnlikeButtonClick,
   //Admin Pai
   GetTotalCourse,
@@ -1187,7 +1194,9 @@ export {
   GetDataGraph,
   CreateUserByAdmin,
   GetTask,
+  // eslint-disable-next-line react-refresh/only-export-components
   createTask,
+  // eslint-disable-next-line react-refresh/only-export-components
   deleteTask,
   //Payment Mac
   GetPaymentByIdUser, // ตะวันใช้ get ข้อมูลลง mycourse
