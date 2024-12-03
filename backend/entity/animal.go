@@ -6,6 +6,8 @@ import (
 	"gorm.io/gorm"
 )
 
+// Complete Controller
+
 type Animal struct {
 	gorm.Model
 	Name string
