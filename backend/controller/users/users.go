@@ -75,7 +75,6 @@ func GetUserByTutorId(c *gin.Context) {
     c.JSON(http.StatusOK, user)
 }
 
-
 func Update(c *gin.Context) {
     var user entity.Users
     UserID := c.Param("id")

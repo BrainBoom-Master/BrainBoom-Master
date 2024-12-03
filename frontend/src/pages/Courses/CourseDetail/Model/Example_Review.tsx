@@ -52,6 +52,10 @@ const Example_Review: React.FC<ExampleReviewProps> = ({ course_id }) => {
   const formatDate = (date?: Date | string) => {
     if (!date) return "Unknown Date";
     return new Date(date).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
+    /*{ year: "numeric", month: "long", day: "numeric" }: ตั้งค่ารูปแบบวันที่ที่ต้องการ:
+year: "numeric": แสดงปีเป็นตัวเลข (เช่น 2024)
+month: "long": แสดงชื่อเดือนแบบเต็ม (เช่น January)
+day: "numeric": แสดงวันเป็นตัวเลข (เช่น 28)*/
   };
 
   const renderStarsUser = (rating: number = 0) => (
@@ -69,6 +73,8 @@ const Example_Review: React.FC<ExampleReviewProps> = ({ course_id }) => {
     if (!comment) return null;
     const truncatedComment = truncateComment(comment);
     return <span dangerouslySetInnerHTML={{ __html: truncatedComment }} />;
+    /**{ __html: truncatedComment }: กำหนดให้ dangerouslySetInnerHTML มีค่าเป็นอ็อบเจกต์ที่มีพร็อพเพอร์ตี้
+     *  __html ซึ่งเก็บข้อความ HTML ที่ตัดแล้ว โดย truncatedComment อาจประกอบไปด้วย HTML เช่น <strong>, <em>, หรือแท็กอื่น ๆ */
   };
 
   useEffect(() => {

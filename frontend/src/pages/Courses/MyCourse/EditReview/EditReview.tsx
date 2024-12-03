@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Form, Input, Button, message, Upload } from "antd";
 import ReactDOM from "react-dom";
 import { ReviewInterface } from "../../../../interfaces/IReview";
@@ -35,7 +35,6 @@ const ModalEdit: React.FC<ModalProps> = ({
   const [loading, setLoading] = React.useState(false);
   const [rating, setRating] = React.useState<number | undefined>(undefined);
   const [fileList, setFileList] = React.useState<UploadFile[]>([]);
-  const [reviews, setReviews] = useState<ReviewInterface>();
 
   const onChange: UploadProps["onChange"] = ({ fileList: newFileList }) => {
     setFileList(newFileList);
@@ -107,7 +106,6 @@ const ModalEdit: React.FC<ModalProps> = ({
     const GetMemberid = async () => {
       const res = await GetReviewsByID(reviewId);
       if (res) {
-        setReviews(res.data);
         form.setFieldsValue({
           Rating: res.data.Rating,
           Comment: res.data.Comment,

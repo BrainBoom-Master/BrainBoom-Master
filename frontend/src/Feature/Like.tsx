@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'; 
 import { onLikeButtonClick, fetchLikeStatus, onUnlikeButtonClick } from '../services/https'; 
 import "./feture.css"; 
-import { Heart } from 'phosphor-react'; 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
 import { faHeart } from '@fortawesome/free-solid-svg-icons'; 
 
