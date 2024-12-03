@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// Complete Controller
+// Complete Controller animal
 
 type Animal struct {
 	gorm.Model
