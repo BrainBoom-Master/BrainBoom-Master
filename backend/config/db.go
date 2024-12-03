@@ -54,4 +54,5 @@ func SetupDatabase() {
 		&entity.UserRoles{},
 		&entity.Zone{},
 	)
+	
 }

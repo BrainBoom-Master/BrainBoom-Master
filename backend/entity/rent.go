@@ -6,9 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// Complete Controller animal
-
-type Animal struct {
+type Rent struct {
 	gorm.Model
 	Name string
 	Description string
